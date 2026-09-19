@@ -1186,6 +1186,708 @@
           }
         ]
       }
+    },
+    {
+      "slug": "eurasian-teal",
+      "common_name": "Eurasian Teal",
+      "scientific_name": "Anas crecca",
+      "color": "#7ed957",
+      "guild": "waterbird",
+      "iucn": "Least Concern",
+      "habitat": "Deep Bay intertidal mudflats and Mai Po gei wais",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Degradation of Deep Bay feeding habitat",
+        "Climate-induced short-stopping",
+        "Hunting pressure along the flyway"
+      ],
+      "_data_status": "HKBWS states plainly: 'Eurasian Teal numbers have declined substantially since 2000.' Series appears in five overlapping report windows and agrees throughout.",
+      "anchors": [
+        {
+          "year": 1999,
+          "count": 5411,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2000,
+          "count": 4099,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 2509,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 3147,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 3286,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 2238,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 3023,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 1227,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 2785,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 2322,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 1581,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 1459,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 1131,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 830,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 481,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 619,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        }
+      ]
+    },
+    {
+      "slug": "eurasian-wigeon",
+      "common_name": "Eurasian Wigeon",
+      "scientific_name": "Mareca penelope",
+      "color": "#e06666",
+      "guild": "waterbird",
+      "iucn": "Least Concern",
+      "habitat": "Deep Bay intertidal mudflats and shallow gei wais",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Degradation of Deep Bay feeding habitat",
+        "Decline of Siberian breeding populations",
+        "Climate-induced short-stopping"
+      ],
+      "_data_status": "HKBWS: 'Eurasian Wigeon numbers have been declining after four years of high counts from 2007 to 2010.' Series appears in four overlapping report windows and agrees throughout.",
+      "anchors": [
+        {
+          "year": 2000,
+          "count": 3143,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 6705,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 3797,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 4080,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 2744,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 3106,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 2054,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 5764,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 5050,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 4439,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 4429,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 2919,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 2077,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 2240,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 1742,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        }
+      ]
+    },
+    {
+      "slug": "oriental-reed-warbler",
+      "common_name": "Oriental Reed Warbler",
+      "scientific_name": "Acrocephalus orientalis",
+      "color": "#d4a373",
+      "guild": "reedbed passerine",
+      "iucn": "Least Concern",
+      "habitat": "Reedmarsh and tall grass at Mai Po and Long Valley",
+      "metric": "passage_count",
+      "extirpated_year": null,
+      "threats": [
+        "Loss and drying of reedmarsh",
+        "Succession of gei wai reedbeds without management",
+        "Loss of stopover habitat along the flyway"
+      ],
+      "_data_status": "HKBWS: 'Oriental Reed Warbler have declined substantially since the 1990s.' THE LOUDEST BIRD IN A MAI PO REEDBED - its silence is the one an audience would actually feel. Single-report series, column mapping confirmed against the same report's narrative for 2014.",
+      "anchors": [
+        {
+          "year": 1997,
+          "count": 300,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "highest count on record, 300 on 25 September 1997"
+        },
+        {
+          "year": 2003,
+          "count": 200,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2004,
+          "count": 100,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2005,
+          "count": 9,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2006,
+          "count": 50,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2007,
+          "count": 17,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2008,
+          "count": 40,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2009,
+          "count": 37,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2010,
+          "count": 34,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2011,
+          "count": 50,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2012,
+          "count": 36,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2013,
+          "count": 26,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2014,
+          "count": 25,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        }
+      ]
+    },
+    {
+      "slug": "house-swift",
+      "common_name": "House Swift",
+      "scientific_name": "Apus nipalensis",
+      "color": "#b0b8c4",
+      "guild": "urban aerial",
+      "iucn": "Least Concern",
+      "habitat": "Breeds on buildings across urban Hong Kong; spring passage over Deep Bay",
+      "metric": "passage_count",
+      "extirpated_year": null,
+      "threats": [
+        "Loss of nest sites during building renovation",
+        "Decline in aerial insect prey",
+        "Loss of open foraging habitat to development"
+      ],
+      "_data_status": "HKBWS: 'peak counts of House Swift are now much lower than in The Avifauna period, when daily counts of over 2,000 were made on spring passage in most years. The highest daily count since The Avifauna is 1,000 and since 2006 is only 500.' THE ONE BIRD AN URBAN AUDIENCE HAS ACTUALLY HEARD, screaming over the rooftops.",
+      "anchors": [
+        {
+          "year": 1985,
+          "count": 3000,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "highest count on record, 3,000 on 18 March 1985, repeated 30 March 1991 and 26 February 1993"
+        },
+        {
+          "year": 2002,
+          "count": 500,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2003,
+          "count": 300,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2004,
+          "count": 1000,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2005,
+          "count": 500,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2006,
+          "count": 800,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2007,
+          "count": 500,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2008,
+          "count": 120,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2009,
+          "count": 400,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2010,
+          "count": 400,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2011,
+          "count": 200,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2012,
+          "count": 500,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2013,
+          "count": 170,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2014,
+          "count": 250,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "narrative: 'the peak count only 250 at Nim Wan on 7 May'"
+        }
+      ]
+    },
+    {
+      "slug": "little-bunting",
+      "common_name": "Little Bunting",
+      "scientific_name": "Emberiza pusilla",
+      "color": "#ffd966",
+      "guild": "farmland passerine",
+      "iucn": "Least Concern",
+      "habitat": "Inactive dry agriculture and open country, Deep Bay and Long Valley",
+      "metric": "passage_count",
+      "extirpated_year": null,
+      "threats": [
+        "Loss of dry agricultural land",
+        "Trapping on migration through mainland China",
+        "Abandonment of the farmland mosaic"
+      ],
+      "_data_status": "HKBWS: 'This species has declined significantly since the 1990s on both passages, particularly spring.' NOTE: the decline predates this window, so the 2003-2014 series is fairly flat - the fall is visible only against the 1985 peak of 150. Column mapping confirmed against the narrative for 2014.",
+      "anchors": [
+        {
+          "year": 1985,
+          "count": 150,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "highest count on record, 150 on 15 December 1985"
+        },
+        {
+          "year": 2003,
+          "count": 50,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2004,
+          "count": 8,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2005,
+          "count": 25,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2006,
+          "count": 30,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2007,
+          "count": 19,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2008,
+          "count": 10,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2009,
+          "count": 65,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2010,
+          "count": 15,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2011,
+          "count": 12,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2012,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2013,
+          "count": 11,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2014,
+          "count": 26,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        }
+      ]
+    },
+    {
+      "slug": "zitting-cisticola",
+      "common_name": "Zitting Cisticola",
+      "scientific_name": "Cisticola juncidis",
+      "color": "#a8d84b",
+      "guild": "grassland passerine",
+      "iucn": "Least Concern",
+      "habitat": "Grassy and reedmarsh areas, breeds in the Deep Bay area",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Loss of rough grassland and reedmarsh",
+        "Development of the Deep Bay margins",
+        "Vegetation succession"
+      ],
+      "_data_status": "HKBWS: this species 'has declined significantly since the 1990s when peak counts over 50 were regular'. The 2014 report also notes 'Breeding season: no records for the first time since 2006' - it stopped breeding in Hong Kong that year. Column mapping confirmed against the narrative for 2014.",
+      "anchors": [
+        {
+          "year": 1997,
+          "count": 100,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "highest count on record, 100 on 5 December 1997"
+        },
+        {
+          "year": 2003,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2004,
+          "count": 32,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2005,
+          "count": 19,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2006,
+          "count": 11,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2007,
+          "count": 39,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2008,
+          "count": 28,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2009,
+          "count": 36,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2010,
+          "count": 33,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2011,
+          "count": 11,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2012,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2013,
+          "count": 30,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        },
+        {
+          "year": 2014,
+          "count": 12,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables",
+          "note": "annual peak count"
+        }
+      ]
     }
   ]
 }
