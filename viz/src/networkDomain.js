@@ -16,6 +16,12 @@ import { makeAgedPointsMaterial, makeAgedLineMaterial } from './agedMaterials.js
 export const BAND_STOPS = ['#2438d8', '#6d2bd8', '#c92e7a', '#e2643c', '#e8b04b', '#a8d84b', '#6fe0c8', '#f2f4f0']
   .map((c) => new THREE.Color(c));
 
+// How far outside its own wedge a bird may drift before anything pushes back.
+// 1.0 is a hard territory; above 1.0 neighbouring lanes overlap at the edges
+// and species tangle with each other, which is what a real bay looks like.
+// Colours stay readable because each voice still spends most of its time home.
+const LANE_SLACK = 1.45;
+
 export class NetworkDomain {
   constructor(stem, meta, {
     center = new THREE.Vector3(),
@@ -36,6 +42,8 @@ export class NetworkDomain {
                                        // call an octave and a half higher and
                                        // would fly straight off the top of the
                                        // stage, so the flyway passes ~2000 Hz.
+    seed = 1,                          // per-species, so wander is organic but
+                                       // reproducible: the same piece every run
     lane = null,                       // {a0, a1, radius} - confine this voice
                                        // to its own wedge of the bay.
                                        // Jazz wanted every instrument roaming
@@ -59,7 +67,36 @@ export class NetworkDomain {
     const emissions = [];
     const pos = new THREE.Vector3();
     const vel = new THREE.Vector3();
-    let phase = Math.random() * 6.28;
+
+    // Seeded RNG: the wander must look random and be identical every run.
+    let sd = (seed * 2654435761) >>> 0;
+    const rnd = () => {
+      sd = (sd + 0x6d2b79f5) >>> 0;
+      let t = Math.imul(sd ^ (sd >>> 15), 1 | sd);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+    // Three oscillators per axis at incommensurable ratios, each with its own
+    // random phase. A single sine makes a circle and two make a lissajous -
+    // both read as machine-drawn. Three that never come back into step read as
+    // an animal wandering. The ratios are irrational-ish on purpose.
+    const W = [0.0737, 0.1213 * 1.618, 0.2411 * 2.718];
+    const ph = [rnd() * 6.283, rnd() * 6.283, rnd() * 6.283,
+                rnd() * 6.283, rnd() * 6.283, rnd() * 6.283];
+    const wob = (k, t) =>
+      Math.sin(t * W[0] + ph[k * 3]) +
+      0.62 * Math.sin(t * W[1] + ph[k * 3 + 1]) +
+      0.38 * Math.sin(t * W[2] + ph[k * 3 + 2]);
+
+    // start somewhere inside its own territory rather than at the origin, so
+    // fifteen walkers do not all launch from the same point
+    if (lane) {
+      const a = lane.a0 + rnd() * (lane.a1 - lane.a0);
+      const r0 = (lane.inner ?? 0) + 25 + rnd() * 45;
+      pos.set(Math.cos(a) * r0, 0, Math.sin(a) * r0);
+    }
+    let phase = rnd() * 6.28;
 
     for (let i = 0; i < rms.length; i++) {
       const amp = rms[i];
@@ -74,50 +111,54 @@ export class NetworkDomain {
         ? Math.log2(f0[i] / pitchRef) * 60
         : (bands[i] >= 0 ? (bands[i] - 3.5) * 22 : 0);
 
-      // free oscillatory travel - larger strides, lazier damping
-      phase += 0.05 + amp * 0.3;
-      vel.x += Math.sin(phase * 1.31 + amp * 6.0) * amp * 4.2;
-      vel.z += Math.cos(phase * 0.87 + amp * 4.0) * amp * 4.2;
+      // Free travel. The wander is what carries the bird; the signal only
+      // sets how energetically it moves.
+      phase += 1.0 + amp * 3.0;
+      vel.x += wob(0, phase) * (0.5 + amp * 3.4);
+      vel.z += wob(1, phase) * (0.5 + amp * 3.4);
       vel.y += (pitchY - pos.y) * 0.1;
-      vel.multiplyScalar(0.9);
-      pos.add(vel);
 
-      // soft radial spring instead of a hard wall
-      const r = Math.hypot(pos.x, pos.z);
+      // EVERY boundary below is a FORCE on velocity, never a correction of
+      // position. Setting position directly is what drew the polygon: a
+      // walker pinned on a limit rides it exactly, and a wedge ridden exactly
+      // becomes a straight chord between its two edges. Fifteen of those is a
+      // fifteen-sided figure, which is precisely what it looked like. Push
+      // instead of place, and the boundary bends the flight rather than
+      // becoming the flight.
+      const r = Math.hypot(pos.x, pos.z) || 1e-6;
+      const ux = pos.x / r, uz = pos.z / r;
+
       if (r > spread) {
-        const pull = (r - spread) * 0.04;
-        pos.x -= (pos.x / r) * pull;
-        pos.z -= (pos.z / r) * pull;
+        const k = Math.min(1, (r - spread) / 60);
+        vel.x -= ux * k * 2.2;
+        vel.z -= uz * k * 2.2;
       }
 
-      // Lane confinement, also a spring rather than a wall: the bird may lean
-      // out of its wedge and gets eased back, so the stream still looks flown
-      // rather than drawn along a rail.
       if (lane) {
-        const ang = Math.atan2(pos.z, pos.x);
-        // shortest signed offset from the middle of the lane
+        if (lane.inner && r < lane.inner) {
+          const k = Math.min(1, (lane.inner - r) / 40);
+          vel.x += ux * k * 2.0;
+          vel.z += uz * k * 2.0;
+        }
+        // Soft territory, not a fence. The bird may drift out of its wedge and
+        // tangle with its neighbours - which is what a real bay sounds and
+        // looks like - and is only gently turned back once well outside.
         const mid = (lane.a0 + lane.a1) / 2;
         const half = (lane.a1 - lane.a0) / 2;
-        let d = ang - mid;
+        let d = Math.atan2(pos.z, pos.x) - mid;
         while (d > Math.PI) d -= Math.PI * 2;
         while (d < -Math.PI) d += Math.PI * 2;
-        if (Math.abs(d) > half) {
-          const target = mid + Math.sign(d) * half;
-          const k = 0.22;
-          const na = ang + (target - ang) * k;
-          const rr = Math.max(lane.inner ?? 0, r);
-          pos.x = Math.cos(na) * rr;
-          pos.z = Math.sin(na) * rr;
-          vel.x *= 0.7;
-          vel.z *= 0.7;
-        }
-        if (lane.inner && r < lane.inner) {
-          const push = (lane.inner - r) * 0.25;
-          const a2 = Math.atan2(pos.z, pos.x);
-          pos.x += Math.cos(a2) * push;
-          pos.z += Math.sin(a2) * push;
+        const over = Math.abs(d) - half * LANE_SLACK;
+        if (over > 0) {
+          // tangential nudge back toward the middle of the territory
+          const s = -Math.sign(d) * Math.min(1, over / 0.35) * 1.6;
+          vel.x += -uz * s;
+          vel.z += ux * s;
         }
       }
+
+      vel.multiplyScalar(0.9);
+      pos.add(vel);
 
       const band = Math.max(0, Math.min(BAND_STOPS.length - 1, bands[i]));
       emissions.push({

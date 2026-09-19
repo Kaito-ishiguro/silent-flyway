@@ -250,6 +250,7 @@ function buildDomains(f) {
       starHead: isLead,
       pitchRef: PITCH_REF,
       lane,
+      seed: i + 1,
       // Stems here are composed, not separated, so there is no bleed to gate
       // against - a species is silent exactly when it is not calling.
       threshold: 0.05,
