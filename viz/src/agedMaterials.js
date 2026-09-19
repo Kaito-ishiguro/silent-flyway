@@ -24,6 +24,8 @@ const AGE_GLSL = /* glsl */ `
                              // (constellations) instead of vanishing
   uniform float uWinA;       // sculpture mode only: show the trace laid down
   uniform float uWinB;       // between these two times and nothing else
+  uniform float uWinGain;    // and draw it this much brighter, because one
+                             // decade is a seventh of the points
 
   // returns brightness multiplier for a vertex born at t;
   // negative means "do not draw"
@@ -39,7 +41,13 @@ const AGE_GLSL = /* glsl */ `
       // if both are drawn the same way and the only difference is how much
       // there is.
       if (t < uWinA || t > uWinB) return -1.0;
-      return 0.085 * uGain;
+      // A decade holds roughly a seventh of what the whole timeline holds, so
+      // at the brightness that suits all of it a single decade renders as a
+      // faint smear and the density is impossible to read. The gain is applied
+      // to BOTH decades equally and never varies between them - if the first
+      // decade were lit harder than the last, brightness would be doing the
+      // work the data is supposed to do, and the comparison would be a trick.
+      return 0.085 * uGain * uWinGain;
     }
     float age = uTime - t;
     if (age < 0.0) return -1.0;
@@ -64,6 +72,7 @@ export function makeAgedPointsMaterial({
       uFloor: { value: floor },
       uWinA: { value: -1e9 },
       uWinB: { value: 1e9 },
+      uWinGain: { value: 1 },
       uPR: { value: POINT_PR },
     },
     vertexShader: /* glsl */ `
@@ -115,6 +124,7 @@ export function makeAgedLineMaterial({ gain = 1.0, neon = 2.8, neonDecay = 5.0, 
       uFloor: { value: floor },
       uWinA: { value: -1e9 },
       uWinB: { value: 1e9 },
+      uWinGain: { value: 1 },
     },
     vertexShader: /* glsl */ `
       attribute float aTime;

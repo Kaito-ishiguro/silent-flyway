@@ -646,7 +646,11 @@ function applyWindow(mode) {
   windowMode = mode;
   if (!features) return;
   const [a, b] = windowRange(mode);
-  for (const d of networkDomains) d.setWindow(a, b);
+  // Both decades are lit identically. The first decade SHOULD read as dense
+  // and various - that is the whole point of showing it - but it has to earn
+  // that from how much trace is in it, not from a brighter lamp.
+  const gain = mode === 'all' ? 1 : 2.6;
+  for (const d of networkDomains) d.setWindow(a, b, gain);
   for (const btn of el.compareBtns.children) {
     btn.classList.toggle('sel', btn.dataset.win === mode);
   }
@@ -721,6 +725,9 @@ renderer.setAnimationLoop(() => {
   if (!scrubbing) el.seek.value = t;
   if (el.cam.value.startsWith('follow:')) updateFollowCamera(dt, t);
   else controls.update();
+  // After the camera is final for this frame, so the clearing is cut against
+  // where the viewer actually ends up rather than where they were last frame.
+  habitat?.setView(camera.position);
   drawGraph(t);
 
   if (features) {

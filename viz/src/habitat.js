@@ -445,17 +445,69 @@ const FOG_GLSL = /* glsl */ `
   }
 `;
 
-// The cutaway. The sound is the subject; the habitat is the argument about
-// why there is less of it. Whenever a tree or a tower comes between the camera
-// and the bay it stops being an argument and becomes an obstruction, so
-// anything inside the near plane dissolves. It is keyed on view depth rather
-// than on a fixed region, which means it works from the orbit, from a follow
-// camera, and from wherever the viewer drags to - there is no angle that can
-// bury the trace.
+// Anything close enough to the lens to smear across the frame goes, whatever
+// direction it is in. This is only the backstop now - the corridor below does
+// the real work - so it is deliberately shallow, and the landscape keeps its
+// depth instead of being eaten from the front.
 const NEAR_GLSL = /* glsl */ `
   uniform float uNear;
   float nearFade() {
-    return smoothstep(120.0, 380.0, vDepth * uNear);
+    return smoothstep(60.0, 200.0, vDepth * uNear);
+  }
+`;
+
+// THE CLEARING.
+//
+// The sculpture is the piece. The habitat is the argument about why there is
+// less of it every year, and the moment a tower or a canopy lands between the
+// viewer and the trace it stops making that argument and becomes something to
+// look past. Fading by distance-from-camera alone could not fix this: a tower
+// standing eight hundred units away is nowhere near the lens and still sits
+// squarely across the sculpture.
+//
+// So the cleared volume is defined relative to the LINE OF SIGHT, in two parts:
+//
+//   the clearing   a sphere around the bay that nothing occupies. The trace
+//                  always has room around it, from every angle, and the
+//                  mangrove reads as a wetland with a clearing in it, which is
+//                  what a bay actually is.
+//   the corridor   a cone from the eye to that sphere. Its width is angular,
+//                  not absolute - it is exactly the width of the clearing as
+//                  seen from wherever the viewer happens to be - so it clears
+//                  the same patch of SCREEN whether you are hanging over the
+//                  bay or pulled right out beyond the far towers. Zoom, orbit,
+//                  follow a bird: the view through to the sculpture is open at
+//                  every one of them, and nothing behind the bay is touched,
+//                  because a backdrop is not an obstruction.
+const CLEAR_GLSL = /* glsl */ `
+  uniform vec3 uCam;
+  uniform vec3 uBay;
+  uniform float uBayR;
+  varying float vClear;
+
+  float clearance(vec3 p) {
+    float keepA = smoothstep(uBayR, uBayR * 1.38, distance(p, uBay));
+
+    vec3 toBay = uBay - uCam;
+    float L = max(1.0, length(toBay));
+    vec3 dir = toBay / L;
+    float s = dot(p - uCam, dir);
+    float keepB = 1.0;
+    if (s > 0.0) {
+      float d = length((p - uCam) - dir * s);
+      // The cone does not stop at the bay, it goes through and out the far
+      // side. Stopping at the bay leaves the whole city standing BEHIND the
+      // sculpture, and a bright wireframe backdrop costs the trace its
+      // contrast just as surely as one standing in front of it does. Carried
+      // through, the cleared volume is a constant angular cone, which on
+      // screen is a fixed circle centred on the bay at every zoom and every
+      // angle: the sculpture is always read against dark.
+      //
+      // It also happens to be true. The bay IS a hole in the city.
+      float R = uBayR * (s / L);
+      keepB = smoothstep(R * 0.66, R, d);
+    }
+    return min(keepA, keepB);
   }
 `;
 
@@ -564,7 +616,7 @@ export class HabitatDomain {
       [28, 300, 780, 230, 380, 48, 52, 0.00, 0.62],
       [17, 840, 1300, 360, 520, 84, 76, 0.26, 0.70],
       [42, 270, 980, 40, 92, 62, 90, 0.10, 0.66],    // the podium mass
-      [6, 175, 285, 190, 240, 40, 34, 0.68, 0.76],   // inside the ring, last
+      [7, 258, 350, 190, 240, 40, 34, 0.68, 0.76],   // right at the rim, last
     ];
     let ti = 0;
     for (const [n, r0, r1, h0, h1, w0, w1, o0, o1] of blocks) {
@@ -675,6 +727,9 @@ export class HabitatDomain {
         uCity: { value: 0 }, uPR: { value: 1 },
         uFog: { value: fog }, uSculpture: { value: 0 },
         uNear: { value: 1 }, uDissolve: { value: 0 },
+        uCam: { value: new THREE.Vector3(0, 120, 640) },
+        uBay: { value: new THREE.Vector3(0, 45, 0) },
+        uBayR: { value: 235 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aCity;
@@ -689,6 +744,7 @@ export class HabitatDomain {
         varying float vFlight;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           // Every particle crosses on its own schedule inside its target's
           // window, so the transfer is a scatter and not a formation.
@@ -703,6 +759,7 @@ export class HabitatDomain {
           p.z += arc * (fract(aSeed * 7.13) - 0.5) * 120.0;
           vColor = mix(aColA, aColB, m);
           vFlight = arc;
+          vClear = clearance(p);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vDepth = -mv.z;
           gl_PointSize = min(aSize * (300.0 / max(80.0, vDepth)), 9.0) * uPR;
@@ -717,6 +774,7 @@ export class HabitatDomain {
         varying float vFlight;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           // square dots, not round: the reference is a lattice readout and a
           // circular sprite immediately turns it into bokeh
@@ -725,7 +783,8 @@ export class HabitatDomain {
           float a = smoothstep(0.5, 0.33, d);
           float b = (0.56 + vFlight * 1.5) * (1.0 + 0.3 * uSculpture)
             * mix(1.0, 0.68, uCity);
-          gl_FragColor = vec4(vColor * b, a * fogFade() * nearFade() * (1.0 - uDissolve));
+          gl_FragColor = vec4(vColor * b,
+            a * fogFade() * nearFade() * vClear * (1.0 - uDissolve));
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -800,6 +859,9 @@ export class HabitatDomain {
       uniforms: {
         uPR: { value: 1 }, uFog: { value: fog },
         uAlpha: { value: 0 }, uNear: { value: 1 }, uDissolve: { value: 0 },
+        uCam: { value: new THREE.Vector3(0, 120, 640) },
+        uBay: { value: new THREE.Vector3(0, 45, 0) },
+        uBayR: { value: 235 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aColor;
@@ -807,8 +869,10 @@ export class HabitatDomain {
         varying vec3 vColor;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           vColor = aColor;
+          vClear = clearance(position);
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           vDepth = -mv.z;
           gl_PointSize = min(3.4 * (300.0 / max(80.0, vDepth)), 7.0) * uPR;
@@ -821,11 +885,12 @@ export class HabitatDomain {
         varying vec3 vColor;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           vec2 q = gl_PointCoord - 0.5;
           float a = smoothstep(0.5, 0.12, length(q));
           gl_FragColor = vec4(vColor * 1.6,
-            a * uAlpha * fogFade() * nearFade() * (1.0 - uDissolve));
+            a * uAlpha * fogFade() * nearFade() * vClear * (1.0 - uDissolve));
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -879,6 +944,9 @@ export class HabitatDomain {
         uCity: { value: 0 }, uFog: { value: fog },
         uColor: { value: color }, uOpacity: { value: opacity },
         uNear: { value: 1 }, uDissolve: { value: 0 },
+        uCam: { value: new THREE.Vector3(0, 120, 640) },
+        uBay: { value: new THREE.Vector3(0, 45, 0) },
+        uBayR: { value: 235 },
       },
       vertexShader: /* glsl */ `
         attribute float aOrder;
@@ -886,10 +954,12 @@ export class HabitatDomain {
         varying float vA;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           // lines trail the particles slightly: the frame is only drawn once
           // enough material has arrived to justify it
           vA = smoothstep(aOrder + 0.08, aOrder + 0.36, uCity);
+          vClear = clearance(position);
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           vDepth = -mv.z;
           gl_Position = projectionMatrix * mv;
@@ -903,6 +973,7 @@ export class HabitatDomain {
         varying float vA;
         ${FOG_GLSL}
         ${NEAR_GLSL}
+        ${CLEAR_GLSL}
         void main() {
           // The city is meant to suffocate by MASS, not by glare. Ninety
           // towers stacked in depth at a fixed per-line opacity sum into a
@@ -913,13 +984,19 @@ export class HabitatDomain {
           // anyone can see what is being lost.
           float crowd = mix(1.0, 0.46, uCity);
           gl_FragColor = vec4(uColor * vA * crowd,
-            vA * uOpacity * crowd * fogFade() * nearFade() * (1.0 - uDissolve));
+            vA * uOpacity * crowd * fogFade() * nearFade() * vClear
+              * (1.0 - uDissolve));
         }
       `,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       transparent: true,
     });
+  }
+
+  /** The clearing follows the viewer: every material needs the eye. */
+  setView(camPos) {
+    for (const m of this._allMats()) m.uniforms.uCam.value.copy(camPos);
   }
 
   setPointPixelRatio(r) {

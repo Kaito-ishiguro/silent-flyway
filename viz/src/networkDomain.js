@@ -418,10 +418,11 @@ export class NetworkDomain {
   }
 
   /** Sculpture mode: draw only the trace laid down between a and b seconds. */
-  setWindow(a, b) {
+  setWindow(a, b, gain = 1) {
     for (const m of this._mats()) {
       m.uniforms.uWinA.value = a;
       m.uniforms.uWinB.value = b;
+      m.uniforms.uWinGain.value = gain;
     }
   }
 
