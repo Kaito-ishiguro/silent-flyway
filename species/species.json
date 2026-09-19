@@ -1,5 +1,12 @@
 {
-  "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. 'basis' is 'documented' only when the figure was read back off its cited source and confirmed; 'estimated' means a bound, a midpoint convention, or a placeholder, and MUST NOT be presented as fact. The viewer draws estimated stretches dashed. Species with no recording in calls/ are skipped by compose.py and wait here until one arrives.",
+  "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. Species with no recording in calls/ are skipped by compose.py and wait here until one arrives.",
+
+  "_basis": {
+    "_comment": "How much weight each anchor carries. Only 'documented' is treated as established fact; the viewer draws every other kind as a dashed stretch of rim.",
+    "documented": "The cited source was opened and the figure read back off it, or derived by stated arithmetic from a figure that was.",
+    "secondary": "Taken from a compiled series that agrees with the verified figures around it, but whose individual year has not been checked against the primary report. Plausible and probably right - not yet proof.",
+    "estimated": "A bound, a range, a period midpoint, or a placeholder. NOT a measurement, and must never be cited as one."
+  },
 
   "_sources": {
     "avifauna": "Carey, G. J., M. R. Leven and C. C. Pang (2023), The Avifauna of Hong Kong, HKBWS - https://avifauna.hkbws.org.hk",
@@ -186,12 +193,27 @@
         "Mangrove encroachment closing open tidal flat",
         "Cessation of active gei wai management"
       ],
-      "_data_status": "VERIFIED against the International Black-faced Spoonbill Census. THE POINT OF THIS SPECIES: globally it is a conservation success - 7,746 birds in 2026, a record - while Deep Bay has flatlined around 330-410 for a decade. Its share of the world population fell from about one fifth in 2011 to 4.4% in 2026. It is the voice that survives to the end and still represents a loss. ACOUSTIC CAVEAT: near-silent on the wintering grounds.",
+      "_data_status": "The densest series in this project: a near-annual run from the first International Synchronous Census in 1994 to 2026. THE POINT OF THIS SPECIES: globally it is a conservation success - 7,746 birds in 2026, a record - while Deep Bay peaked at 462 in 2010 and has hovered near 300-380 ever since. Its share of the world population fell from over a fifth in 2011 to 4.4% in 2026. It is the voice that survives to the end and still represents a loss. NOTE ON 411: an earlier anchor placed 411 in 2016 from the 2026 report's phrase 'the peak of 411 recorded ten years ago'. The compiled series puts 411 in 2011 and again in 2015, and 371 in 2016; the 2011 reading is corroborated independently, since the 2024 report states Deep Bay held 'over 20%' of the world population in 2011 and 411/1848 is 22.2%. The 2016=411 reading is withdrawn. ACOUSTIC CAVEAT: near-silent on the wintering grounds.",
       "anchors": [
-        { "year": 2016, "count": 411, "basis": "estimated", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "CONTESTED - THREE FIGURES IN CIRCULATION FOR THE DEEP BAY PEAK. The 2026 report says 'the peak of 411 recorded ten years ago', and 411 is verified, but the YEAR is inferred from 'ten years ago'. A Chinese-language research pass gave 371 for 2016. A separate HKBWS statement gives an all-time high of 462 in 2010, which would make 411 a later local peak rather than the record. Needs the 2016 census report itself to settle. Treated as estimated until then" },
-        { "year": 2017, "count": 375, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Hong Kong & Shenzhen (Deep Bay), 375, being 9.5% of the global total" },
-        { "year": 2018, "count": 350, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 350, 8.9% of the global total" },
-        { "year": 2019, "count": 383, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 383, 8.6% of the global total" },
+        { "year": 1994, "count": 86, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "first International Synchronous BFS Census; individual year not yet checked against the census report" },
+        { "year": 1996, "count": 124, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 1998, "count": 152, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2000, "count": 199, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2003, "count": 258, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2005, "count": 316, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2008, "count": 374, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2010, "count": 462, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "the all-time Deep Bay high; HKBWS describes an all-time high of 462 in 2010" },
+        { "year": 2011, "count": 411, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "cross-checked by ratio: the 2024 report says Deep Bay held 'over 20%' of the world population in 2011, and 411 of a 1,848 global total is 22.2%" },
+        { "year": 2013, "count": 351, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2015, "count": 411, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked; a candidate referent for the 2026 report's 'peak of 411 ten years ago'" },
+        { "year": 2016, "count": 371, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "independently given as 371 by a second research pass, which raises confidence, but neither cited the census report itself" },
+        { "year": 2017, "count": 375, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Hong Kong & Shenzhen (Deep Bay), 375, being 9.5% of the global total" },
+        { "year": 2018, "count": 350, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 350, 8.9% of the global total" },
+        { "year": 2019, "count": 383, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 383, 8.6% of the global total" },
+        { "year": 2021, "count": 336, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2022, "count": 369, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
+        { "year": 2023, "count": 299, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "derived by arithmetic from the 2024 report: 375 was 'a growth of 25.4%', giving 299. A compiled series states 299 independently" },
+        { "year": 2024, "count": 375, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "Deep Bay 375 of a global 6,988, the second lowest share in history at 5.4%" },
         { "year": 2025, "count": 328, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "derived by arithmetic from the 2026 report: 341 was 'an increase of 13 individuals' on the previous year" },
         { "year": 2026, "count": 341, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "Deep Bay recorded 341 individuals, a 4.0% increase; share a historic low of 4.4%" }
       ]

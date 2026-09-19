@@ -137,12 +137,21 @@ class Population:
         return max(0.0, min(1.0, self.at(year) / (self.peak or 1)))
 
     def basis_at(self, year: float) -> str:
+        """Weakest basis of the two anchors bracketing this year.
+
+        A span is only as trustworthy as its weaker end, so a documented
+        figure interpolated toward a placeholder does not launder the
+        placeholder.
+        """
         a = self.anchors
         for i in range(1, len(a)):
             if year <= a[i]["year"]:
-                return ("documented"
-                        if a[i - 1]["basis"] == "documented" and a[i]["basis"] == "documented"
-                        else "estimated")
+                pair = {a[i - 1]["basis"], a[i]["basis"]}
+                if "estimated" in pair:
+                    return "estimated"
+                if "secondary" in pair:
+                    return "secondary"
+                return "documented"
         return a[-1]["basis"]
 
 

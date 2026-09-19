@@ -55,11 +55,13 @@ export class YearRingDomain {
     this.total = total;
     this.totalMax = totalMax;
 
-    // any year where ANY still-present species rests on an interpolation
+    // Any year where a still-present species rests on something short of a
+    // figure read off its own source. Tested against 'documented' rather than
+    // for 'estimated', so a new basis kind can never default to looking solid.
     const estimated = new Uint8Array(years);
     for (const sp of species) {
       for (let i = 0; i < years; i++) {
-        if ((sp.curve[i] ?? 0) > 0 && sp.basis[i] === 'estimated') estimated[i] = 1;
+        if ((sp.curve[i] ?? 0) > 0 && sp.basis[i] !== 'documented') estimated[i] = 1;
       }
     }
 

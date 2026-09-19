@@ -249,7 +249,7 @@ function buildDomains(f) {
   el.cam.value = [...el.cam.options].some((o) => o.value === prevCam) ? prevCam : 'orbit';
   applyCamMode();
 
-  const anyEstimated = f.species.some((s) => s.basis.includes('estimated'));
+  const anyEstimated = f.species.some((s) => s.basis.some((b) => b !== 'documented'));
   axesOverlay?.dispose(scene);
   axesOverlay = new AxesOverlay(f.meta, { pitchRef: PITCH_REF, estimated: anyEstimated });
   axesOverlay.setVisible(axesOn);
