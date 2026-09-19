@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-The MIT licence above covers the CODE in this repository.
-
-It does not cover, and cannot cover, the field recordings the pipeline
-consumes: those are collected from third parties, are not redistributed here
-(see .gitignore), and carry whatever licence their own source gives them.
-Anyone reusing this project must clear the rights to their own recordings.
-
-Population figures are drawn from published survey literature and are cited in
-species/species.json; they remain the property of the bodies that collected
-them.
