@@ -1,0 +1,30 @@
+# --- source recordings -------------------------------------------------
+# Field recordings are collected from third parties (YouTube, Xeno-canto and
+# the like) and are NOT ours to redistribute. The pipeline is reproducible
+# without them: the README gives the yt-dlp line, and compose.py rebuilds
+# everything from whatever sits in calls/.
+calls/*.wav
+calls/**/*.wav
+calls/*.mp3
+calls/*.m4a
+calls/*.webm
+
+# --- generated output --------------------------------------------------
+# data/ is entirely rebuilt by `python analysis/compose.py --plot`, and the
+# mixdown is a 20MB wav that also contains the third-party audio above.
+data/
+
+# --- environments ------------------------------------------------------
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+viz/node_modules/
+.vite/
+dist/
+
+# --- editors / os ------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

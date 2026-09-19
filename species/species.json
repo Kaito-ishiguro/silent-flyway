@@ -1,0 +1,32 @@
+{
+  "_comment": "Population anchors for the Hong Kong / Deep Bay avifauna timeline. Each anchor carries a basis: 'documented' means the figure appears in a cited survey or report; 'estimated' means it is an interpolation or an informed guess used only to span a gap, and MUST be replaced before this is shown as fact. The viewer renders estimated segments with a dashed timeline so the distinction survives into the artwork.",
+  "timeline": {
+    "start_year": 1960,
+    "end_year": 2026,
+    "seconds_per_decade": 18
+  },
+  "species": [
+    {
+      "slug": "spoon-billed-sandpiper",
+      "common_name": "Spoon-billed Sandpiper",
+      "scientific_name": "Calidris pygmaea",
+      "color": "#ff9a3c",
+      "guild": "shorebird",
+      "iucn": "Critically Endangered",
+      "habitat": "Intertidal mudflats, Inner Deep Bay / Mai Po",
+      "extirpated_year": null,
+      "threats": [
+        "Loss of Yellow Sea intertidal staging mudflats to reclamation",
+        "Invasive Spartina cordgrass choking remaining foraging flats",
+        "Illegal trapping and net bycatch on the Myanmar wintering grounds"
+      ],
+      "anchors": [
+        { "year": 1960, "count": 60, "basis": "estimated", "note": "PLACEHOLDER pre-collapse baseline - no HK count located for this era" },
+        { "year": 1990, "count": 50, "basis": "estimated", "note": "PLACEHOLDER - needs an HKBWS passage figure" },
+        { "year": 2006, "count": 34, "basis": "documented", "note": "spring passage count, Mai Po" },
+        { "year": 2023, "count": 16, "basis": "documented", "note": "January flock, Mai Po" },
+        { "year": 2026, "count": 2, "basis": "documented", "note": "typical recent annual sightings, 1-2 individuals" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silent Flyway</title>
+  <style>
+    :root {
+      --bg: #050608;
+      --fg: #e8e6e3;
+      --dim: #8a8f98;
+      --accent: #e2643c;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+    }
+    #scene { position: fixed; inset: 0; }
+    #hud {
+      position: fixed; top: 0; left: 0;
+      /* stop short of the radar panel so the controls never slide under it */
+      right: calc(18px + var(--radar-w, 256px) + 14px);
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 12px 18px;
+      font-size: 12px; letter-spacing: .06em;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #hud > * { pointer-events: auto; flex: 0 0 auto; white-space: nowrap; }
+    #hud .title { font-weight: 600; text-transform: uppercase; color: var(--dim); }
+    select, button {
+      background: rgba(255,255,255,.06);
+      color: var(--fg);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      max-width: 100%;
+    }
+    #camMode { max-width: 220px; }
+    button:hover, select:hover { border-color: rgba(255,255,255,.45); }
+    #sculptBtn.active, #axesBtn.active { border-color: var(--accent); color: var(--accent); }
+    #seek {
+      flex: 1 1 180px; min-width: 120px; max-width: 340px;
+      accent-color: var(--accent);
+      height: 3px; cursor: pointer;
+    }
+    #meta {
+      position: fixed; bottom: 14px; left: 18px;
+      font-size: 11px; color: var(--dim); line-height: 1.7;
+      z-index: 10; pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+    #voices {
+      position: fixed; bottom: 88px; left: 18px;
+      font-size: 11px; line-height: 1.8; color: var(--fg);
+      z-index: 10; pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+    /* the year, big, where the song title used to be - it is the axis now */
+    #year {
+      position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+      font-size: clamp(30px, 5vw, 54px); font-weight: 200;
+      letter-spacing: .12em; font-variant-numeric: tabular-nums;
+      color: var(--fg); text-shadow: 0 0 30px rgba(120,190,230,.3);
+      z-index: 10; pointer-events: none;
+    }
+    #banner {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: clamp(16px, 2.6vw, 26px); letter-spacing: .2em;
+      text-transform: uppercase; text-align: center; line-height: 1.7;
+      opacity: 0; transition: opacity .6s ease; z-index: 11; pointer-events: none;
+      text-shadow: 0 2px 20px rgba(0,0,0,.9);
+    }
+    #banner small {
+      display: block; font-size: 12px; letter-spacing: .08em;
+      color: var(--dim); text-transform: none; margin-top: 6px;
+    }
+    #clock {
+      position: fixed; right: 18px;
+      bottom: calc(var(--graph-top, 178px) + 6px);
+      font-size: 11px; color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      z-index: 10;
+    }
+    #radarBox {
+      position: fixed; top: var(--hud-h, 58px); right: 18px;
+      background: rgba(8, 10, 14, .72);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 6px 8px;
+      z-index: 10;
+    }
+    #radar { display: block; }
+    #radarLegend { font-size: 10px; line-height: 1.5; opacity: .9; padding: 0 4px 2px; }
+    #graphBox {
+      position: fixed; bottom: 14px; right: 18px;
+      background: rgba(8, 10, 14, .72);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 8px 10px 6px;
+      z-index: 10;
+    }
+    #graphLegend {
+      display: flex; gap: 14px; font-size: 10px; letter-spacing: .04em;
+      margin-bottom: 4px; opacity: .9;
+    }
+    #graph { display: block; width: min(440px, 40vw); height: auto; }
+    #empty[hidden] { display: none; }
+    #empty {
+      position: fixed; inset: 0; display: grid; place-items: center;
+      color: var(--dim); font-size: 13px; text-align: center; line-height: 2;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene"></div>
+  <div id="hud">
+    <span class="title">Silent Flyway</span>
+    <button id="playBtn" disabled>&#9654; play</button>
+    <button id="sculptBtn" title="reveal the whole timeline as one frozen structure">sculpture</button>
+    <button id="axesBtn" class="active" title="show labeled axes explaining the 3D mapping">axes</button>
+    <select id="camMode" title="camera style - lock onto one species">
+      <option value="orbit">orbit camera</option>
+    </select>
+    <input id="seek" type="range" min="0" max="100" step="0.1" value="0" />
+    <span id="status" style="color:var(--dim)"></span>
+  </div>
+  <div id="empty" hidden>
+    nothing composed yet<br/>
+    put a recording in&nbsp; <code>calls/&lt;slug&gt;.wav</code> &nbsp;then run<br/>
+    <code>python analysis/compose.py --plot</code>
+  </div>
+  <div id="year">1960</div>
+  <div id="banner"></div>
+  <div id="meta"></div>
+  <div id="voices"></div>
+  <div id="clock"></div>
+  <div id="radarBox">
+    <canvas id="radar" width="240" height="230"></canvas>
+    <div id="radarLegend"></div>
+  </div>
+  <div id="graphBox">
+    <div id="graphLegend">
+      <span id="graphStem" style="color:#e8e6e3; font-weight:600"></span>
+      <span style="color:#e2643c">— pitch → height</span>
+      <span style="color:#e8e6e3">— loudness → stride &amp; glow</span>
+      <span style="color:#6fe0c8">— brightness → color</span>
+      <span style="color:#5fd08a">— population</span>
+    </div>
+    <canvas id="graph" width="440" height="130"></canvas>
+  </div>
+  <script>
+    // Keep the HUD and the radar panel out of each other's way at any window
+    // size: the HUD stops where the radar starts, the radar starts below the
+    // HUD's actual (possibly wrapped) height.
+    (function () {
+      var hud = document.getElementById('hud');
+      var radar = document.getElementById('radarBox');
+      var root = document.documentElement;
+      var graphBox = document.getElementById('graphBox');
+      function sync() {
+        root.style.setProperty('--radar-w', radar.offsetWidth + 'px');
+        root.style.setProperty('--hud-h', hud.offsetHeight + 8 + 'px');
+        root.style.setProperty('--graph-top', 14 + graphBox.offsetHeight + 'px');
+      }
+      new ResizeObserver(sync).observe(hud);
+      new ResizeObserver(sync).observe(radar);
+      new ResizeObserver(sync).observe(graphBox);
+      addEventListener('resize', sync);
+      sync();
+    })();
+  </script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
