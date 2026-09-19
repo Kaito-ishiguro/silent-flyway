@@ -226,6 +226,9 @@ export class NetworkDomain {
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
     pGeo.setAttribute('aColor', new THREE.BufferAttribute(pCol, 3));
     pGeo.setAttribute('aTime', new THREE.BufferAttribute(pTime, 1));
+    // Kept so the viewer can count how much of the trace falls inside a
+    // given decade - the number under the comparison control.
+    this.emitTimes = pTime;
     this.pointsMat = makeAgedPointsMaterial({ size, gain, neon, neonDecay });
     this.points = new THREE.Points(pGeo, this.pointsMat);
 
@@ -411,9 +414,31 @@ export class NetworkDomain {
   }
 
   setSculpture(on) {
-    this.pointsMat.uniforms.uSculpture.value = on ? 1 : 0;
-    this.edgesMat.uniforms.uSculpture.value = on ? 1 : 0;
-    if (this.stars) this.starsMat.uniforms.uSculpture.value = on ? 1 : 0;
-    if (this.links) this.linksMat.uniforms.uSculpture.value = on ? 1 : 0;
+    for (const m of this._mats()) m.uniforms.uSculpture.value = on ? 1 : 0;
+  }
+
+  /** Sculpture mode: draw only the trace laid down between a and b seconds. */
+  setWindow(a, b) {
+    for (const m of this._mats()) {
+      m.uniforms.uWinA.value = a;
+      m.uniforms.uWinB.value = b;
+    }
+  }
+
+  _mats() {
+    const m = [this.pointsMat, this.edgesMat];
+    if (this.stars) m.push(this.starsMat);
+    if (this.links) m.push(this.linksMat);
+    return m;
+  }
+
+  /** How many trace points were emitted between a and b seconds. */
+  countIn(a, b) {
+    let n = 0;
+    for (let i = 0; i < this.emitTimes.length; i++) {
+      const t = this.emitTimes[i];
+      if (t >= a && t <= b) n++;
+    }
+    return n;
   }
 }

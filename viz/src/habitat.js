@@ -91,6 +91,8 @@ function painter() {
   };
 }
 
+const _carP = new THREE.Vector3();
+const _carD = new THREE.Vector3();
 const _u = new THREE.Vector3();
 const _v = new THREE.Vector3();
 const _p = new THREE.Vector3();
@@ -324,6 +326,91 @@ function towerLines(rng, { w, d, h, floors, mullions }) {
   return segs;
 }
 
+// ----------------------------------------------------------------- roads
+// The road network is grown, not drawn. A mangrove's surface root is a
+// branching graph crawling outward across the mud, splitting as it goes, and a
+// road network is the same graph with the curves taken out - which is why the
+// roots are what becomes the roads here rather than becoming more building.
+// Trunk roads run outward from the edge of the bay, throw off branches, and
+// those branch once more; ring roads cross them in broken arcs.
+//
+// Each road is kept as a centreline polyline so traffic can be driven along it
+// later, and drawn as two kerb lines so it reads as a road and not a wire.
+function roadNetwork(rng) {
+  const roads = [];   // { pts: Vector3[], w }
+
+  const jitterOut = (a0, r0, r1, w, depth) => {
+    const pts = [];
+    let a = a0;
+    const steps = Math.max(3, Math.round((r1 - r0) / 90));
+    for (let i = 0; i <= steps; i++) {
+      const r = r0 + (r1 - r0) * (i / steps);
+      a += (rng() - 0.5) * 0.10;
+      pts.push(new THREE.Vector3(Math.sin(a) * r, 3, Math.cos(a) * r));
+    }
+    roads.push({ pts, w });
+    if (depth >= 2) return;
+    const n = depth === 0 ? 2 + Math.floor(rng() * 2) : (rng() < 0.5 ? 1 : 0);
+    for (let k = 0; k < n; k++) {
+      const at = 0.25 + rng() * 0.6;
+      const br0 = r0 + (r1 - r0) * at;
+      jitterOut(a + (rng() < 0.5 ? -1 : 1) * (0.28 + rng() * 0.3),
+        br0, br0 + 180 + rng() * 320, w * 0.66, depth + 1);
+    }
+  };
+
+  for (let i = 0; i < 9; i++) {
+    jitterOut((i / 9) * Math.PI * 2 + rng() * 0.3, 215, 1150 + rng() * 180,
+      16 + rng() * 9, 0);
+  }
+
+  for (const R of [370, 620, 880, 1130]) {
+    let a = rng() * Math.PI * 2;
+    const arcs = 2 + Math.floor(rng() * 2);
+    for (let k = 0; k < arcs; k++) {
+      const span = 0.8 + rng() * 1.5;
+      const pts = [];
+      const steps = Math.max(4, Math.round(span * 7));
+      for (let i = 0; i <= steps; i++) {
+        const t = a + span * (i / steps);
+        const r = R + Math.sin(i * 0.7) * 16;
+        pts.push(new THREE.Vector3(Math.sin(t) * r, 3, Math.cos(t) * r));
+      }
+      roads.push({ pts, w: 13 + rng() * 7 });
+      a += span + 0.5 + rng() * 1.1;
+    }
+  }
+  return roads;
+}
+
+/** The two kerb lines of a road, as flat segments. */
+function roadKerbs(road) {
+  const segs = [];
+  const { pts, w } = road;
+  const d = new THREE.Vector3(), nrm = new THREE.Vector3();
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      d.subVectors(pts[i + 1], pts[i]);
+      nrm.set(-d.z, 0, d.x).normalize().multiplyScalar((w / 2) * side);
+      segs.push([
+        pts[i].x + nrm.x, pts[i].y, pts[i].z + nrm.z,
+        pts[i + 1].x + nrm.x, pts[i + 1].y, pts[i + 1].z + nrm.z,
+      ]);
+    }
+  }
+  return segs;
+}
+
+/** Position and forward direction at arc-length fraction u along a road. */
+function roadAt(road, u, outPos, outDir) {
+  const pts = road.pts;
+  const f = Math.max(0, Math.min(0.9999, u)) * (pts.length - 1);
+  const i = Math.floor(f);
+  const k = f - i;
+  outPos.lerpVectors(pts[i], pts[i + 1], k);
+  outDir.subVectors(pts[i + 1], pts[i]).normalize();
+}
+
 function segLen(s) {
   return Math.hypot(s[3] - s[0], s[4] - s[1], s[5] - s[2]);
 }
@@ -358,8 +445,27 @@ const FOG_GLSL = /* glsl */ `
   }
 `;
 
+// The cutaway. The sound is the subject; the habitat is the argument about
+// why there is less of it. Whenever a tree or a tower comes between the camera
+// and the bay it stops being an argument and becomes an obstruction, so
+// anything inside the near plane dissolves. It is keyed on view depth rather
+// than on a fixed region, which means it works from the orbit, from a follow
+// camera, and from wherever the viewer drags to - there is no angle that can
+// bury the trace.
+const NEAR_GLSL = /* glsl */ `
+  uniform float uNear;
+  float nearFade() {
+    return smoothstep(120.0, 380.0, vDepth * uNear);
+  }
+`;
+
 export class HabitatDomain {
   constructor(meta, species, { y = -126, fog = 0.0009 } = {}) {
+    // The landscape is fogged twice: once by distance, once by the near
+    // cutaway removing its front half. At the scene's own density that
+    // leaves a grey smear where the far treeline should be, so it breathes
+    // through thinner air than everything else does.
+    fog *= 0.72;
     this.group = new THREE.Group();
     this.y = y;
     this.duration = meta.duration;
@@ -371,6 +477,8 @@ export class HabitatDomain {
     this.cityness = 0;
     this.shown = 0;
     this.lastT = null;
+    this.lastWall = null;
+    this.dissolve = 0;
 
     // ---- how much of the bay is gone, measured against its own best year so
     // far. Against the all-time peak instead, 1959 would open at 30% lost and
@@ -473,27 +581,52 @@ export class HabitatDomain {
       }
     }
 
-    // ================================================== 3. deal the targets
-    // Every point in the city, shuffled into one pool and handed out at
-    // random. A tree does not become a tower; it is dispersed into all of
-    // them, and every tower is assembled from material taken from everywhere.
-    const lens = towers.map((t) => t.segs.reduce((s, g) => s + segLen(g), 0));
-    const totalLen = lens.reduce((a, b) => a + b, 0) || 1;
-    const targets = [];
-    towers.forEach((t, i) => {
-      const n = Math.max(1, Math.round(wild.length * (lens[i] / totalLen)));
-      const hMax = t.segs.reduce((m, g) => Math.max(m, g[1], g[4]), 1);
-      for (const p of sampleSegments(t.segs, n)) {
-        targets.push({ x: p.x, y: p.y, z: p.z, order: t.order, hMax });
-      }
-    });
-    for (let i = targets.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [targets[i], targets[j]] = [targets[j], targets[i]];
-    }
-    while (targets.length < wild.length) targets.push(targets[targets.length % targets.length || 0]);
+    // ================================================== 3. roads
+    this.roads = roadNetwork(rng);
+    const roadSegs = [];
+    for (const r of this.roads) for (const g of roadKerbs(r)) roadSegs.push(g);
 
-    // ================================================== 4. buffers
+    // ================================================== 4. deal the targets
+    // What a point becomes is decided by what it was. Root goes to road,
+    // canopy goes to tower: the network crawling over the mud straightens into
+    // the network crawling over the mud, and the thing that stood up becomes
+    // the thing that stands up. Within each of those two pools the assignment
+    // is shuffled, so no single tree becomes a single building - it is
+    // dispersed across everything, which is what happened.
+    const rootIdx = [], airIdx = [];
+    wild.forEach((w, i) => (w.k === K_ROOT ? rootIdx : airIdx).push(i));
+
+    const poolFrom = (items, count) => {
+      const lens = items.map((t) => t.segs.reduce((a, g) => a + segLen(g), 0));
+      const totalLen = lens.reduce((a, b) => a + b, 0) || 1;
+      const out = [];
+      items.forEach((t, i) => {
+        const k = Math.max(1, Math.round(count * (lens[i] / totalLen)));
+        const hMax = t.segs.reduce((m, g) => Math.max(m, g[1], g[4]), 1);
+        for (const p of sampleSegments(t.segs, k)) {
+          out.push({ x: p.x, y: p.y, z: p.z, order: t.order, hMax });
+        }
+      });
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    };
+
+    // Roads arrive early and all together - the ground is cleared and cut
+    // before anything is built on it, which is both true and the reason the
+    // transformation reads as deliberate rather than as weather.
+    const roadPool = poolFrom(
+      roadSegs.map((g) => ({ segs: [g], order: 0.02 + ((g[0] + g[2]) % 97) / 97 * 0.22 })),
+      rootIdx.length);
+    const towerPool = poolFrom(towers, airIdx.length);
+
+    const targets = new Array(wild.length);
+    rootIdx.forEach((wi, k) => { targets[wi] = roadPool[k % roadPool.length]; });
+    airIdx.forEach((wi, k) => { targets[wi] = towerPool[k % towerPool.length]; });
+
+    // ================================================== 5. buffers
     const n = wild.length;
     const pos = new Float32Array(n * 3);
     const city = new Float32Array(n * 3);
@@ -541,6 +674,7 @@ export class HabitatDomain {
       uniforms: {
         uCity: { value: 0 }, uPR: { value: 1 },
         uFog: { value: fog }, uSculpture: { value: 0 },
+        uNear: { value: 1 }, uDissolve: { value: 0 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aCity;
@@ -554,6 +688,7 @@ export class HabitatDomain {
         varying vec3 vColor;
         varying float vFlight;
         ${FOG_GLSL}
+        ${NEAR_GLSL}
         void main() {
           // Every particle crosses on its own schedule inside its target's
           // window, so the transfer is a scatter and not a formation.
@@ -576,17 +711,21 @@ export class HabitatDomain {
       `,
       fragmentShader: /* glsl */ `
         uniform float uSculpture;
+        uniform float uDissolve;
+        uniform float uCity;
         varying vec3 vColor;
         varying float vFlight;
         ${FOG_GLSL}
+        ${NEAR_GLSL}
         void main() {
           // square dots, not round: the reference is a lattice readout and a
           // circular sprite immediately turns it into bokeh
           vec2 q = abs(gl_PointCoord - 0.5);
           float d = max(q.x, q.y);
           float a = smoothstep(0.5, 0.33, d);
-          float b = (0.62 + vFlight * 1.5) * (1.0 + 0.3 * uSculpture);
-          gl_FragColor = vec4(vColor * b, a * fogFade());
+          float b = (0.56 + vFlight * 1.5) * (1.0 + 0.3 * uSculpture)
+            * mix(1.0, 0.68, uCity);
+          gl_FragColor = vec4(vColor * b, a * fogFade() * nearFade() * (1.0 - uDissolve));
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -613,6 +752,88 @@ export class HabitatDomain {
     lg.setAttribute('aOrder', new THREE.Float32BufferAttribute(lineOrder, 1));
     this.group.add(new THREE.LineSegments(lg, this.lineMat));
 
+    // road kerbs, drawn warm and early - tarmac before towers
+    const rv = [], ro = [];
+    for (const g of roadSegs) {
+      const ord = 0.02 + ((g[0] + g[2]) % 97) / 97 * 0.22;
+      rv.push(g[0], y + g[1], g[2], g[3], y + g[4], g[5]);
+      ro.push(ord, ord);
+    }
+    this.roadMat = this._lineMaterial(fog, new THREE.Color('#9fb0c4'), 0.34);
+    const rgeo = new THREE.BufferGeometry();
+    rgeo.setAttribute('position', new THREE.Float32BufferAttribute(rv, 3));
+    rgeo.setAttribute('aOrder', new THREE.Float32BufferAttribute(ro, 1));
+    this.group.add(new THREE.LineSegments(rgeo, this.roadMat));
+
+    // ------------------------------------------------------------ traffic
+    // Headlights out, tail lights back. Nothing else in the piece moves on its
+    // own clock - the birds are a recording and the city is a slow ramp - so
+    // the only thing in the frame with its own errand to run is the traffic,
+    // which is exactly the point being made about whose bay it is now.
+    this.cars = [];
+    for (let i = 0; i < this.roads.length; i++) {
+      const road = this.roads[i];
+      const n = 2 + Math.floor(rng() * 5);
+      for (let k = 0; k < n; k++) {
+        const out = rng() < 0.5;
+        this.cars.push({
+          road,
+          u: rng(),
+          v: (out ? 1 : -1) * (0.030 + rng() * 0.034),
+          side: out ? 1 : -1,
+          warm: out,
+        });
+      }
+    }
+    const cn = this.cars.length;
+    const carPos = new Float32Array(cn * 3);
+    const carCol = new Float32Array(cn * 3);
+    this.cars.forEach((c, i) => {
+      const col = c.warm ? [1.0, 0.93, 0.78] : [1.0, 0.26, 0.18];
+      carCol.set(col, i * 3);
+    });
+    const cgeo = new THREE.BufferGeometry();
+    cgeo.setAttribute('position', new THREE.BufferAttribute(carPos, 3));
+    cgeo.setAttribute('aColor', new THREE.BufferAttribute(carCol, 3));
+    this.carAttr = cgeo.attributes.position;
+    this.carMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uPR: { value: 1 }, uFog: { value: fog },
+        uAlpha: { value: 0 }, uNear: { value: 1 }, uDissolve: { value: 0 },
+      },
+      vertexShader: /* glsl */ `
+        attribute vec3 aColor;
+        uniform float uPR;
+        varying vec3 vColor;
+        ${FOG_GLSL}
+        ${NEAR_GLSL}
+        void main() {
+          vColor = aColor;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vDepth = -mv.z;
+          gl_PointSize = min(3.4 * (300.0 / max(80.0, vDepth)), 7.0) * uPR;
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform float uAlpha;
+        uniform float uDissolve;
+        varying vec3 vColor;
+        ${FOG_GLSL}
+        ${NEAR_GLSL}
+        void main() {
+          vec2 q = gl_PointCoord - 0.5;
+          float a = smoothstep(0.5, 0.12, length(q));
+          gl_FragColor = vec4(vColor * 1.6,
+            a * uAlpha * fogFade() * nearFade() * (1.0 - uDissolve));
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      transparent: true,
+    });
+    this.group.add(new THREE.Points(cgeo, this.carMat));
+
     // ------------------------------------------------------------- the haze
     // The sky stops being dark. This is the single most legible signal that
     // the place has changed, and the only one you can see with your eyes half
@@ -638,7 +859,7 @@ export class HabitatDomain {
           float band = exp(-pow(max(h, 0.0) * 4.4, 1.3));
           float floorFade = smoothstep(-0.16, 0.05, h);
           vec3 sodium = mix(vec3(1.0, 0.42, 0.15), vec3(1.0, 0.74, 0.5), band * 0.45);
-          gl_FragColor = vec4(sodium * band * floorFade * uCity * 0.28, 1.0);
+          gl_FragColor = vec4(sodium * band * floorFade * uCity * 0.20, 1.0);
         }
       `,
       side: THREE.BackSide,
@@ -657,12 +878,14 @@ export class HabitatDomain {
       uniforms: {
         uCity: { value: 0 }, uFog: { value: fog },
         uColor: { value: color }, uOpacity: { value: opacity },
+        uNear: { value: 1 }, uDissolve: { value: 0 },
       },
       vertexShader: /* glsl */ `
         attribute float aOrder;
         uniform float uCity;
         varying float vA;
         ${FOG_GLSL}
+        ${NEAR_GLSL}
         void main() {
           // lines trail the particles slightly: the frame is only drawn once
           // enough material has arrived to justify it
@@ -675,10 +898,22 @@ export class HabitatDomain {
       fragmentShader: /* glsl */ `
         uniform vec3 uColor;
         uniform float uOpacity;
+        uniform float uDissolve;
+        uniform float uCity;
         varying float vA;
         ${FOG_GLSL}
+        ${NEAR_GLSL}
         void main() {
-          gl_FragColor = vec4(uColor * vA, vA * uOpacity * fogFade());
+          // The city is meant to suffocate by MASS, not by glare. Ninety
+          // towers stacked in depth at a fixed per-line opacity sum into a
+          // white wall that the bird trace cannot punch through - and the
+          // trace is the subject. So the more city there is, the quieter each
+          // line of it draws. The bay still ends up surrounded on every side;
+          // it just stays legible while that happens, which is the only way
+          // anyone can see what is being lost.
+          float crowd = mix(1.0, 0.46, uCity);
+          gl_FragColor = vec4(uColor * vA * crowd,
+            vA * uOpacity * crowd * fogFade() * nearFade() * (1.0 - uDissolve));
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -687,7 +922,14 @@ export class HabitatDomain {
     });
   }
 
-  setPointPixelRatio(r) { this.pointMat.uniforms.uPR.value = r; }
+  setPointPixelRatio(r) {
+    this.pointMat.uniforms.uPR.value = r;
+    this.carMat.uniforms.uPR.value = r;
+  }
+
+  _allMats() {
+    return [this.pointMat, this.lineMat, this.roadMat, this.carMat];
+  }
 
   /** An extirpation. The city takes the ground permanently, and lurches. */
   strike() {
@@ -734,6 +976,43 @@ export class HabitatDomain {
 
     this.pointMat.uniforms.uCity.value = this.cityness;
     this.lineMat.uniforms.uCity.value = this.cityness;
-    this.glowMat.uniforms.uCity.value = this.cityness;
+    this.roadMat.uniforms.uCity.value = this.cityness;
+
+    // ---- the city gets out of the way at the end.
+    //
+    // Sculpture mode exists to show the whole trace at once, and a skyline
+    // standing in front of it defeats the only reason anybody switched to it.
+    // Eased on the wall clock rather than the audio clock on purpose: when the
+    // piece ends the audio clock stops, so anything keyed to it would freeze
+    // half-faded.
+    const now = performance.now();
+    const wdt = this.lastWall == null ? 0
+      : Math.min(0.2, (now - this.lastWall) / 1000);
+    this.lastWall = now;
+    const wantD = this.sculpture ? 1 : 0;
+    this.dissolve += (wantD - this.dissolve) * (1 - Math.pow(0.06, wdt));
+    for (const m of this._allMats()) m.uniforms.uDissolve.value = this.dissolve;
+    this.glowMat.uniforms.uCity.value = this.cityness * (1 - this.dissolve);
+
+    // ---- traffic
+    const lit = Math.max(0, Math.min(1, (this.cityness - 0.3) / 0.35));
+    this.carMat.uniforms.uAlpha.value = lit;
+    if (lit > 0.01 && this.dissolve < 0.99) {
+      const arr = this.carAttr.array;
+      const p = _carP, d = _carD;
+      for (let i = 0; i < this.cars.length; i++) {
+        const c = this.cars[i];
+        c.u += c.v * wdt;
+        if (c.u > 1) c.u -= 1;
+        if (c.u < 0) c.u += 1;
+        roadAt(c.road, c.u, p, d);
+        // sit in the correct lane rather than on the centre line
+        const off = (c.road.w * 0.26) * c.side;
+        arr[i * 3] = p.x + -d.z * off;
+        arr[i * 3 + 1] = this.y + p.y + 1;
+        arr[i * 3 + 2] = p.z + d.x * off;
+      }
+      this.carAttr.needsUpdate = true;
+    }
   }
 }

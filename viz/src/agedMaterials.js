@@ -22,6 +22,8 @@ const AGE_GLSL = /* glsl */ `
   uniform float uNeonDecay;  // lower = longer comet tail
   uniform float uFloor;      // >0: old vertices persist as faint embers
                              // (constellations) instead of vanishing
+  uniform float uWinA;       // sculpture mode only: show the trace laid down
+  uniform float uWinB;       // between these two times and nothing else
 
   // returns brightness multiplier for a vertex born at t;
   // negative means "do not draw"
@@ -30,7 +32,15 @@ const AGE_GLSL = /* glsl */ `
     // stems that is a constellation; with fifteen species calling continuously
     // it is 25,000 points, and at the old 0.5 they summed through the bloom
     // into a white screen. Dimmer per point, same structure, still readable.
-    if (uSculpture > 0.5) return 0.085 * uGain;
+    if (uSculpture > 0.5) {
+      // The window is how you compare a decade against a decade. Everything
+      // the bay said between 1959 and 1969 next to everything it said between
+      // 2016 and 2026 is the whole argument in one gesture, and it only works
+      // if both are drawn the same way and the only difference is how much
+      // there is.
+      if (t < uWinA || t > uWinB) return -1.0;
+      return 0.085 * uGain;
+    }
     float age = uTime - t;
     if (age < 0.0) return -1.0;
     float neon = uNeon * exp(-age * uNeonDecay); // comet flash
@@ -52,6 +62,8 @@ export function makeAgedPointsMaterial({
       uNeon: { value: neon },
       uNeonDecay: { value: neonDecay },
       uFloor: { value: floor },
+      uWinA: { value: -1e9 },
+      uWinB: { value: 1e9 },
       uPR: { value: POINT_PR },
     },
     vertexShader: /* glsl */ `
@@ -101,6 +113,8 @@ export function makeAgedLineMaterial({ gain = 1.0, neon = 2.8, neonDecay = 5.0, 
       uNeon: { value: neon },
       uNeonDecay: { value: neonDecay },
       uFloor: { value: floor },
+      uWinA: { value: -1e9 },
+      uWinB: { value: 1e9 },
     },
     vertexShader: /* glsl */ `
       attribute float aTime;

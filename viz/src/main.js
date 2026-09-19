@@ -61,9 +61,31 @@ const el = {
   voices: document.getElementById('voices'),
   year: document.getElementById('year'),
   banner: document.getElementById('banner'),
-  flash: document.getElementById('deathFlash'),
   score: document.getElementById('scoreBtn'),
+  panels: document.getElementById('panelBtn'),
+  compare: document.getElementById('compare'),
+  compareBtns: document.getElementById('compareBtns'),
+  compareCap: document.getElementById('compareCap'),
 };
+
+// ---- panels off. Three read-outs cover a third of the frame between them,
+// and the frame is the piece. One switch, and a keyboard shortcut because in
+// an exhibition nobody is going to find a button.
+let bare = false;
+function setBare(on) {
+  bare = on;
+  document.body.classList.toggle('bare', on);
+  el.panels.classList.toggle('active', !on);
+  el.panels.title = on ? 'show the panels (P)' : 'hide the panels (P)';
+}
+el.panels.addEventListener('click', () => setBare(!bare));
+addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P') {
+    if (e.target instanceof HTMLInputElement
+      || e.target instanceof HTMLSelectElement) return;
+    setBare(!bare);
+  }
+});
 
 // The music bed and the extinction sting. Both need a real click before a
 // browser will let them make a sound, so both are armed from the play button.
@@ -158,6 +180,9 @@ audio.addEventListener('play', () => {
   playing = true;
   el.play.innerHTML = '&#10074;&#10074; pause';
   setSculpture(false);
+  // Back to the whole trace. A decade filter left over from the last time
+  // somebody looked would silently hide most of the next run.
+  windowMode = 'all';
 });
 audio.addEventListener('pause', () => {
   playing = false;
@@ -176,6 +201,8 @@ function setSculpture(on) {
   bloom.strength = on ? BLOOM_SCULPTURE : BLOOM_LIVE;
   el.sculpt.classList.toggle('active', on);
   ambience.setSculpture(on);
+  el.compare.classList.toggle('on', on);
+  if (on) applyWindow(windowMode);
 }
 el.sculpt.addEventListener('click', () => setSculpture(!sculpture));
 
@@ -318,42 +345,24 @@ el.axes.addEventListener('click', () => {
 let bannerTimer = null;
 function banner(title, sub) {
   clearTimeout(bannerTimer);
-  el.banner.classList.remove('gone');
   el.banner.innerHTML = `${title}<small>${sub}</small>`;
   el.banner.style.opacity = '1';
   bannerTimer = setTimeout(() => { el.banner.style.opacity = '0'; }, 4200);
 }
 
 // ------------------------------------------------------------ an extinction
-// The one event in the piece allowed to interrupt it. Sound, frame and camera
-// all move at once, because a species vanishing from a bay is the only thing
-// here that is not gradual - everything else is a slope, this is a step.
-let shake = 0;
-
+// Plain white text, like every other banner. The red full-frame version read
+// as a jump scare in a room where people are trying to read numbers, and the
+// weight is carried by the bell, by the row striking through on the board, and
+// by the mark that has been sitting on the rim since the first second. What
+// still happens off-screen is the part that matters: the city takes the ground
+// permanently, and does not give it back.
 function extinction(s) {
-  clearTimeout(bannerTimer);
-  el.banner.classList.remove('gone');
-  void el.banner.offsetWidth;        // restart the entry on back-to-back deaths
-  el.banner.classList.add('gone');
-  el.banner.innerHTML = `<span class="gone-name">${s.common_name}</span>gone`
-    + `<small>last recorded in Hong Kong, ${s.extirpated_year}</small>`;
-  el.banner.style.opacity = '1';
-  bannerTimer = setTimeout(() => { el.banner.style.opacity = '0'; }, 7000);
-
-  el.flash.classList.remove('fire');
-  void el.flash.offsetWidth;
-  el.flash.classList.add('fire');
-
-  el.year.classList.add('gone');
-  clearTimeout(extinction.yearTimer);
-  extinction.yearTimer = setTimeout(() => el.year.classList.remove('gone'), 3400);
-
+  banner(`${s.common_name} — gone`,
+    `last recorded in Hong Kong, ${s.extirpated_year}`);
   sting.fire();
   ambience.duck();                   // the bed gets out of the bell's way
   habitat?.strike();                 // and the city takes the ground for good
-  // a shudder that settles, not a hit. The bell does not spike and neither
-  // should the frame.
-  shake = 0.5;
 }
 
 // ------------------------------------------------------------- radar chart
@@ -599,6 +608,81 @@ function drawGraph(t) {
   polyline(stem.centroid, i0, i1, 500, 9000, '#6fe0c8', W, H);          // brightness
 }
 
+// --------------------------------------------------------- decade comparison
+// The piece argues that the bay went quiet. The sculpture shows every call it
+// ever made, which is the proof - but a single dense cloud does not tell you
+// WHEN the density was, and a viewer who arrives at the end has no baseline to
+// judge it against. So the trace can be cut to one decade at a time, drawn
+// identically, with the counts underneath: the first ten years beside the last
+// ten years, same bay, same drawing, and the only thing that differs is how
+// much of it there is.
+const WINDOW_YEARS = 10;
+let windowMode = 'all';
+
+function windowRange(mode) {
+  if (!features) return [-1e9, 1e9];
+  const m = features.meta;
+  const span = m.end_year - m.start_year;
+  const perYear = m.duration / span;
+  if (mode === 'first') return [0, WINDOW_YEARS * perYear];
+  if (mode === 'last') return [m.duration - WINDOW_YEARS * perYear, m.duration];
+  return [-1e9, 1e9];
+}
+
+/** Mean total population across the years the window covers. */
+function windowBirds(y0, y1) {
+  const m = features.meta;
+  let sum = 0, n = 0;
+  for (let y = y0; y <= y1; y++) {
+    const i = y - m.start_year;
+    if (i < 0 || i >= m.end_year - m.start_year + 1) continue;
+    for (const sp of features.species) if (sp.comparable) sum += sp.curve[i] ?? 0;
+    n++;
+  }
+  return n ? sum / n : 0;
+}
+
+function applyWindow(mode) {
+  windowMode = mode;
+  if (!features) return;
+  const [a, b] = windowRange(mode);
+  for (const d of networkDomains) d.setWindow(a, b);
+  for (const btn of el.compareBtns.children) {
+    btn.classList.toggle('sel', btn.dataset.win === mode);
+  }
+
+  const m = features.meta;
+  const fmt = (v) => Math.round(v).toLocaleString();
+  // Every call point the bay put into the sculpture during this window. It is
+  // the literal measure of the thing being claimed: how much sound there was.
+  const pts = (a2, b2) => networkDomains.reduce((s, d) => s + d.countIn(a2, b2), 0);
+
+  if (mode === 'all') {
+    el.compareCap.innerHTML =
+      `<b>${m.start_year}&ndash;${m.end_year}</b> &nbsp;·&nbsp; `
+      + `every call this bay made &nbsp;·&nbsp; <b>${fmt(pts(-1e9, 1e9))}</b> trace points`
+      + `<br/>pick a decade to see when it was made`;
+    return;
+  }
+  const [fa, fb] = windowRange('first');
+  const [la, lb] = windowRange('last');
+  const firstN = pts(fa, fb), lastN = pts(la, lb);
+  const y0 = mode === 'first' ? m.start_year : m.end_year - WINDOW_YEARS;
+  const y1 = mode === 'first' ? m.start_year + WINDOW_YEARS : m.end_year;
+  const birds = windowBirds(y0, y1);
+  const shown = mode === 'first' ? firstN : lastN;
+  const drop = firstN > 0 ? Math.round((1 - lastN / firstN) * 100) : 0;
+  el.compareCap.innerHTML =
+    `<b>${y0}&ndash;${y1}</b> &nbsp;·&nbsp; <b>${fmt(birds)}</b> birds &nbsp;·&nbsp; `
+    + `<b>${fmt(shown)}</b> trace points`
+    + `<br/>the last decade carries <span class="drop">${drop}% less</span> `
+    + `of the trace than the first`;
+}
+
+for (const btn of el.compareBtns.children) {
+  btn.addEventListener('click', () => applyWindow(btn.dataset.win));
+}
+
 // ------------------------------------------------------------- the pressure
 // One number - how much city there is - moved out to everything that should
 // respond to it. The scene does not just contain a city, it is affected by
@@ -637,18 +721,6 @@ renderer.setAnimationLoop(() => {
   if (!scrubbing) el.seek.value = t;
   if (el.cam.value.startsWith('follow:')) updateFollowCamera(dt, t);
   else controls.update();
-
-  // The jolt an extinction puts through the frame. Applied after the camera
-  // has been placed, so it behaves the same in orbit and in follow - both
-  // recompute position from scratch every frame, so nothing accumulates.
-  if (shake > 0.002) {
-    const k = shake * shake * 7;
-    camera.position.x += (Math.random() * 2 - 1) * k;
-    camera.position.y += (Math.random() * 2 - 1) * k;
-    camera.position.z += (Math.random() * 2 - 1) * k;
-    shake *= Math.pow(0.1, dt);
-  } else shake = 0;
-
   drawGraph(t);
 
   if (features) {
