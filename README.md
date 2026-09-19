@@ -116,6 +116,32 @@ uv pip install --python .venv librosa soundfile numpy matplotlib
 npm install --prefix viz
 ```
 
+### First run, from a fresh clone
+
+`calls/*.wav` and `data/` are both gitignored &mdash; the recordings are not
+ours to redistribute and the mixdown is a 20MB file containing them. So a
+fresh clone has the code and none of the audio, and `npm run dev` will show
+*nothing composed yet* until you fetch the recordings yourself.
+
+1. Pull each recording named in `calls/CREDITS.json` from its Xeno-canto page
+   and save it as `calls/<slug>.wav`, where `<slug>` is the key in that file.
+   Read the licence on each page as you go; `NOTICE.md` says what that means
+   for showing the piece anywhere.
+
+2. Compose:
+
+   ```powershell
+   .venv\Scripts\python analysis\compose.py --plot
+   ```
+
+3. ```powershell
+   npm run dev --prefix viz     # -> http://localhost:5176
+   ```
+
+A species whose recording you skip is not a failure: it keeps its row, its
+colour and its number, and simply has no voice. See *Species without a
+recording* below.
+
 ## Adding a species
 
 1. Collect a recording, save it as `calls/<slug>.wav`. From YouTube:
