@@ -60,24 +60,29 @@ FRAME_LEN = 2048
 
 BAND_EDGES = np.array([40, 160, 400, 800, 1600, 3200, 6400, 12000, 16000], dtype=float)
 
-# How many calls may be sounding at once when a species is at its historical
-# peak. This is the single knob that decides whether a full flyway reads as a
-# chorus or as mush, and it is expressed in overlap rather than calls-per-second
-# because the recordings differ wildly in length - a 5 second trill and a 0.3
-# second chirp cannot share a rate.
-PEAK_OVERLAP = 3.2
-MIN_RATE = 0.05          # a clinging remnant still calls, just rarely
-
-# Per-call detune, as a playback-rate range. Set to 0 to play every call back
-# exactly as recorded.
+# Each species' recording plays continuously from the first year to the last,
+# repeating from its own start whenever it runs out. Nothing is trimmed,
+# resampled, detuned, compressed or crossfaded: the only thing that changes
+# over the timeline is how loud it is.
 #
-# A small amount of it is what stops one recording re-triggered a hundred times
-# from reading as a loop instead of a flock - no two birds are identical, and
-# detuning by resampling also shifts duration, which is what a different
-# individual actually sounds like. The cost is that it is no longer the
-# recording you collected. Fidelity wins here by explicit instruction: the
-# calls you hear are the file, untouched.
-DETUNE = 0.0
+# GAIN_EXPONENT maps population to amplitude.
+#   1.0 = amplitude is directly proportional to population. Halving the birds
+#         halves the amplitude, which is -6 dB and plainly audible; a species
+#         down to 1% of its peak is 40 dB down and all but gone. That is the
+#         honest mapping and the one that makes a decline unmistakable.
+#   <1.0 compresses the fall, keeping dying species more present than they are.
+GAIN_EXPONENT = 1.0
+
+# Every species is scaled against ITS OWN historical peak, so each one starts
+# near full voice and its own decline is what you hear. The alternative -
+# scaling against the largest species - would bury a 46-bird kingfisher under
+# 8,000 pintail and you would never hear the kingfisher fade at all.
+SPECIES_NORMALISE = "own_peak"
+
+# Fifteen continuous tracks need separating in space or they smear. Each
+# species holds a fixed stereo position matching its lane in the viewer, so
+# what you see on the left is what you hear on the left.
+STEREO_SPREAD = 0.82
 
 
 def rnd(arr, places=4):
@@ -202,35 +207,49 @@ def score(pop: Population, call_dur: float, timeline: dict, seed: int) -> list[d
     return events
 
 
-def render(call: np.ndarray, events: list[dict], n: int) -> tuple[np.ndarray, np.ndarray]:
-    """Lay the call down at every event. Returns (mono track, stereo track)."""
-    mono = np.zeros(n, dtype=np.float32)
-    stereo = np.zeros((n, 2), dtype=np.float32)
+def gain_curve(pop: Population, timeline: dict, n: int,
+               extirpated: int | None) -> np.ndarray:
+    """Per-sample amplitude for one species across the whole timeline.
 
-    for ev in events:
-        r = ev["rate_shift"]
-        if r == 1.0:
-            shifted = call                     # the recording, sample for sample
-            m = len(call)
-        else:
-            # resampling for detune also shifts duration slightly, which is
-            # what a different individual actually sounds like
-            m = max(2, int(len(call) / r))
-            shifted = np.interp(np.linspace(0, len(call) - 1, m),
-                                np.arange(len(call)), call).astype(np.float32)
+    Built from the population curve, not from anything about the recording, so
+    what the listener hears rise and fall IS the data. Sampled per year and
+    then interpolated to audio rate, which keeps the change continuous rather
+    than stepping once a year.
+    """
+    y0, y1 = timeline["start_year"], timeline["end_year"]
+    years = np.arange(y0, y1 + 1)
+    norm = np.array([pop.norm_at(int(y)) for y in years], dtype=np.float64)
 
-        i0 = int(ev["t"] * SR)
-        i1 = min(n, i0 + m)
-        if i1 <= i0:
-            continue
-        seg = shifted[: i1 - i0] * ev["gain"]
-        mono[i0:i1] += seg
-        # equal-power pan keeps the flock spread across the stereo field
-        p = (ev["pan"] + 1) * 0.25 * np.pi
-        stereo[i0:i1, 0] += seg * np.cos(p)
-        stereo[i0:i1, 1] += seg * np.sin(p)
+    if extirpated is not None:
+        # after the last confirmed record the voice is gone, not merely quiet
+        norm[years > extirpated] = 0.0
 
-    return mono, stereo
+    amp = np.power(np.clip(norm, 0.0, 1.0), GAIN_EXPONENT)
+    at_year = np.linspace(0.0, float(n), len(years), endpoint=True)
+    return np.interp(np.arange(n, dtype=np.float64), at_year, amp).astype(np.float32)
+
+
+def loop_render(call: np.ndarray, n: int, gains: np.ndarray,
+                pan: float) -> tuple[np.ndarray, np.ndarray, int]:
+    """Repeat the recording end to end for the whole piece, then apply gain.
+
+    The recording is tiled from its own first sample each time it runs out -
+    no crossfade at the seam, no stretching, no trimming, no gap. Silences
+    inside the recording are kept: they are part of what was recorded, and a
+    bird that pauses is a bird that pauses.
+
+    Returns (mono, stereo, number of repeats).
+    """
+    reps = int(np.ceil(n / len(call)))
+    tiled = np.tile(call, reps)[:n].astype(np.float32)
+    mono = tiled * gains
+
+    # equal-power pan: a fixed seat in the stereo field, matching the lane
+    p = (pan + 1.0) * 0.25 * np.pi
+    stereo = np.empty((n, 2), dtype=np.float32)
+    stereo[:, 0] = mono * np.cos(p)
+    stereo[:, 1] = mono * np.sin(p)
+    return mono, stereo, reps
 
 
 # ----------------------------------------------------------- stem features
@@ -362,18 +381,24 @@ def compose(plot: bool) -> None:
         # never heard here), so silence is not always a gap waiting to be
         # filled; for those it is the truth.
         has_audio = src.exists()
-        events: list[dict] = []
         call_dur = 0.0
+        reps = 0
 
         if has_audio:
-            # the recording, whole. Peak-normalized so species sit at
-            # comparable levels, and NOT trimmed - its length is part of its
-            # voice.
+            # the recording, whole and in its own order. Peak-normalised only,
+            # so every species starts at a comparable level; nothing else is
+            # done to it.
             call, _ = librosa.load(src, sr=SR, mono=True)
             call = (call / (np.abs(call).max() + 1e-12) * 0.9).astype(np.float32)
             call_dur = len(call) / SR
-            events = score(pop, call_dur, tl, i)
-            mono, stereo = render(call, events, n)
+
+            # a fixed seat in the stereo field, spread evenly and matching the
+            # order the lanes are drawn in
+            total = len(cfg["species"])
+            pan = ((i / max(1, total - 1)) * 2 - 1) * STEREO_SPREAD
+
+            gains = gain_curve(pop, tl, n, sp.get("extirpated_year"))
+            mono, stereo, reps = loop_render(call, n, gains, pan)
             mixdown += stereo
             tracks[slug] = mono
 
@@ -406,7 +431,8 @@ def compose(plot: bool) -> None:
             "now": round(pop.at(y1), 1),
             "decline": round(1 - pop.at(y1) / (pop.peak or 1), 4),
             "has_audio": has_audio,
-            "calls": len(events),
+            "loops": reps,
+            "calls": reps,
             "call_duration": round(call_dur, 3),
             "curve": curve,
             "basis": basis,
@@ -414,8 +440,8 @@ def compose(plot: bool) -> None:
         })
         n_est = sum(1 for a in sp["anchors"] if a["basis"] == "estimated")
         flag = f"  [!] {n_est}/{len(sp['anchors'])} anchors are PLACEHOLDERS" if n_est else ""
-        voice = (f"call {call_dur:.2f}s  {len(events):>4} calls"
-                 if has_audio else "SILENT - no recording yet ")
+        voice = (f"{call_dur:>7.1f}s looped x{reps:<4}"
+                 if has_audio else "  SILENT - no recording ")
         print(f"  [{slug[:26]:<26}] {voice}  "
               f"{metrics.get(metric, {}).get('label', metric)} "
               f"{pop.peak} -> {pop.at(y1):.0f}{flag}")

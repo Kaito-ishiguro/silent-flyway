@@ -34,20 +34,28 @@ sculpture mode at the end         the same, and here it is the record of
 **The translation that makes it work:**
 
 ```
-population of a species in year Y
-        |
-        +--> how OFTEN it calls   (call density)
-        +--> how LOUD each call is (gain)
+population of a species in year Y   --->   how LOUD that species is, right now
 
-local extinction --> the voice stops, and its colour leaves the bay for good
+local extinction --> the voice stops dead, and its colour leaves the bay
 ```
 
-Density is the load-bearing decision. A drone that fades out is a fader being
-pulled; a chorus that thins is a population collapsing. Real wetlands are
-overlapping bursts with gaps between them, so driving call *rate* from
-population means a 1960 marsh sounds busy and a 2020 one sounds like two lonely
-notes &mdash; and it stops a full flyway turning to mush, because only a few
-species are ever abundant at once.
+Every species' recording plays continuously from 1959 to 2026, repeating from
+its own start whenever it runs out. The **only** thing that changes across the
+timeline is amplitude, and amplitude is directly proportional to population:
+halve the birds and you halve the level, which is &minus;6 dB and plainly
+audible. A species down to 1% of its peak is 40 dB down and all but gone. At
+local extinction the gain is not faded, it is zero.
+
+That mapping is what lets a listener pick out *which* bird is going. The whole
+mix falls from about &minus;21 dBFS in the 1960s to &minus;34 dBFS by the
+2010s, but inside it each voice falls at its own rate: the Yellow-breasted
+Bunting drops 26 dB, the Eurasian Teal 19 dB, the White-throated Kingfisher
+only 8 dB, and the Black-faced Spoonbill &mdash; the one recovering species
+&mdash; climbs 11 dB.
+
+Fifteen continuous tracks need separating in space or they smear, so each
+species holds a fixed stereo seat matching its lane in the viewer: what you see
+on the left is what you hear on the left.
 
 ## How it works
 
@@ -60,10 +68,12 @@ tonality, trill rate, pitch, and a spectrogram. A call is a harmonic stack
 that moves; a cicada is a rigid band; music holds steady pitched tones.
    |
    v  python analysis/compose.py --plot
-1. Load each species' recording WHOLE - peak-normalized, never trimmed
-2. Score the timeline: population -> call density + gain, seeded RNG
-3. Re-trigger the recording across 1960-2026, each call with its own
-   detune, level and stereo position, and sum to the mixdown
+1. Load each species' recording WHOLE - peak-normalised, never trimmed.
+   Silences inside it are kept: a bird that pauses is a bird that pauses
+2. Tile it end to end across 1959-2026, restarting from its own first
+   sample each time it runs out. No crossfade, no stretching, no gap
+3. Multiply by that species' population curve, sampled per year and
+   interpolated to audio rate, then pan to its fixed seat and sum
 4. Analyze each species' own track exactly as analyze.py analyzes a Demucs
    stem: 60 fps rms, dominant band (-> colour), centroid, pitch, onsets
    |
@@ -83,25 +93,20 @@ leakage. Here nothing is separated, because nothing needs to be: each species'
 track is built from its own recording, so a voice is silent exactly when that
 species is silent. There is no bleed to gate against.
 
-**The recordings play untouched.** `DETUNE = 0` in `compose.py`, so every call
-is the source file sample for sample. The only things applied are peak
-normalization (so species sit at comparable levels), the population gain, and
-stereo placement &mdash; composition, not alteration.
+**The recordings play untouched.** No trimming, no resampling, no detune, no
+compression, no noise reduction, no crossfade. The only things applied are peak
+normalisation (so every species starts at a comparable level), the population
+gain, and a stereo seat &mdash; composition, not alteration. An mp3 download is
+decoded to wav, which is lossless with respect to what the mp3 already holds
+and is done only because the pipeline reads wav.
 
-Variation between repeats therefore comes only from irregular spacing,
-level, position, and occasional tight answer-calls. Raising `DETUNE` to about
-`0.045` would add &plusmn;4.5% per-call pitch-and-duration jitter, which reads
-more like many individuals and less like one file replayed &mdash; at the cost
-of no longer being the recording you collected. Fidelity is the default here
-by choice.
+**Silences and background noise survive too.** Field recordings carry pauses,
+wind, traffic and encoder whine. Nothing is filtered, so it all comes along.
+A recording that is silent for ten seconds is silent for ten seconds here.
 
-**Background tones survive too.** Field recordings often carry a continuous
-whine (encoder artifact, mic hiss, hum) that sits in every frame including the
-silences. Since nothing is filtered, it comes along &mdash; but because it only
-sounds while a call is playing, it thins out with the birds rather than
-droning under the ending. In the current bunting recording it is about five
-times quieter than the calls, and its share of the timeline falls from ~79% in
-the 1960s to ~21% by the 2020s.
+**Recordings are third-party work.** `calls/CREDITS.json` records the
+Xeno-canto catalogue number and page for every file. Check each licence and
+credit the recordist before any public showing &mdash; see `NOTICE.md`.
 
 ## Setup
 
@@ -199,14 +204,20 @@ mean nothing added together.
 
 ## Design decisions worth defending
 
-- **Density, not just volume.** Volume alone reads as a mixing choice; a
-  falling call rate reads as fewer birds. Both come off the same curve.
-- **Peak overlap, not calls-per-second.** The knob that decides chorus-vs-mush
-  is expressed as how many calls may sound at once at a species' peak, because
-  a 5-second trill and a 0.3-second chirp cannot share a rate.
-- **Sublinear rate, floored gain.** `rate` scales as `norm^0.7` and gain bottoms
-  out at 0.16, so a collapsed population stays audible. The silence at the end
-  has to land as an extinction, not as a fade-out.
+- **Amplitude proportional to population, `GAIN_EXPONENT = 1.0`.** Not a
+  flattering curve. A species at 1% of its peak is 40 dB down and nearly
+  inaudible, because that is what 1% means. Lowering the exponent would keep
+  dying species more present than they are.
+- **Each species scaled against its OWN peak.** Scaling everything against the
+  largest would bury a 46-bird kingfisher under 8,000 pintail, and you would
+  never hear the kingfisher fade &mdash; which is the one thing it is here to
+  do. The cost is that loudness no longer encodes absolute abundance; the
+  scoreboard and the decline rings carry that instead.
+- **Silence at extinction is zero, not a fade.** After the last confirmed
+  record the gain is hard zero. A fade would read as a mixing decision.
+- **No crossfade at the loop seam.** The recording repeats from its own first
+  sample, untouched. If a seam clicks, that is the honest cost of not
+  processing the audio, and a 10 ms crossfade is the fix if you want it.
 - **Decline rings scaled against the biggest species, not each against its own
   peak.** Per-species normalisation would draw a 34-bird wader and a
   6,000-strong duck flock at the same height and quietly erase the subject.

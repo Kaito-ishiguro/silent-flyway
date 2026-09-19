@@ -26,7 +26,11 @@ const AGE_GLSL = /* glsl */ `
   // returns brightness multiplier for a vertex born at t;
   // negative means "do not draw"
   float ageBrightness(float t) {
-    if (uSculpture > 0.5) return 0.5 * uGain;
+    // Sculpture mode reveals every point ever emitted at once. With five jazz
+    // stems that is a constellation; with fifteen species calling continuously
+    // it is 25,000 points, and at the old 0.5 they summed through the bloom
+    // into a white screen. Dimmer per point, same structure, still readable.
+    if (uSculpture > 0.5) return 0.085 * uGain;
     float age = uTime - t;
     if (age < 0.0) return -1.0;
     float neon = uNeon * exp(-age * uNeonDecay); // comet flash

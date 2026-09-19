@@ -88,7 +88,10 @@ const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(
   innerWidth, innerHeight, { samples: 8, type: THREE.HalfFloatType },
 ));
 composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.7, 0.55, 0.4));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.7, 0.55, 0.4);
+const BLOOM_LIVE = 0.7;
+const BLOOM_SCULPTURE = 0.28;   // everything is lit at once; bloom must give way
+composer.addPass(bloom);
 composer.addPass(new OutputPass());
 composer.setSize(innerWidth, innerHeight);
 
@@ -127,6 +130,7 @@ let sculpture = false;
 function setSculpture(on) {
   sculpture = on;
   for (const d of domains) d.setSculpture?.(on);
+  bloom.strength = on ? BLOOM_SCULPTURE : BLOOM_LIVE;
   el.sculpt.classList.toggle('active', on);
 }
 el.sculpt.addEventListener('click', () => setSculpture(!sculpture));
@@ -215,7 +219,11 @@ function buildDomains(f) {
     const lane = n === 1 ? null : {
       a0: i * span + LANE_GAP / 2,
       a1: (i + 1) * span - LANE_GAP / 2,
-      inner: 42,                  // keeps the streams off the centre pole
+      // Hold the streams out in a ring. Every walker starts at the origin, so
+      // with a small inner radius fifteen of them pile into the middle and the
+      // centre burns out - worst in sculpture mode, where all of it is lit at
+      // once. Pushed out, the bay reads as a ring of distinct lanes.
+      inner: 78,
     };
 
     // name the lane in the scene itself, in the species' colour, so the 3D
@@ -407,8 +415,8 @@ async function load() {
 
     const m = features.meta;
     el.meta.innerHTML = [
-      `${m.species_count} species &nbsp; ${m.calls_total} calls &nbsp; `
-      + `${m.extinct_count} locally extinct`,
+      `${m.species_count} species &nbsp; ${m.extinct_count} locally extinct &nbsp; `
+      + `recordings looped to fill the timeline`,
       `${m.peak_total} birds at peak &rarr; ${m.now_total} by ${m.end_year} `
       + `&nbsp; (&minus;${Math.round(m.decline_total * 100)}%)`,
       `${m.start_year}&ndash;${m.end_year} in ${Math.round(m.duration)}s `

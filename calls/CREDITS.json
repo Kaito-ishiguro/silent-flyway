@@ -1,0 +1,114 @@
+{
+  "zitting-cisticola": {
+    "xeno_canto": "XC1150793",
+    "url": "https://xeno-canto.org/1150793",
+    "common_name": "Zitting Cisticola",
+    "scientific_name": "Cisticola juncidis",
+    "source_file": "XC1150793 - Zitting Cisticola - Cisticola juncidis.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "eurasian-coot": {
+    "xeno_canto": "XC1151824",
+    "url": "https://xeno-canto.org/1151824",
+    "common_name": "Eurasian Coot",
+    "scientific_name": "Fulica atra",
+    "source_file": "XC1151824 - Eurasian Coot - Fulica atra.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "northern-pintail": {
+    "xeno_canto": "XC1167897",
+    "url": "https://xeno-canto.org/1167897",
+    "common_name": "Northern Pintail",
+    "scientific_name": "Anas acuta",
+    "source_file": "XC1167897 - Northern Pintail - Anas acuta.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "eurasian-teal": {
+    "xeno_canto": "XC1168468",
+    "url": "https://xeno-canto.org/1168468",
+    "common_name": "Eurasian Teal",
+    "scientific_name": "Anas crecca",
+    "source_file": "XC1168468 - Eurasian Teal - Anas crecca.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "oriental-reed-warbler": {
+    "xeno_canto": "XC1175055",
+    "url": "https://xeno-canto.org/1175055",
+    "common_name": "Oriental Reed Warbler",
+    "scientific_name": "Acrocephalus orientalis",
+    "source_file": "XC1175055 - Oriental Reed Warbler - Acrocephalus orientalis.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "little-bunting": {
+    "xeno_canto": "XC1175066",
+    "url": "https://xeno-canto.org/1175066",
+    "common_name": "Little Bunting",
+    "scientific_name": "Emberiza pusilla",
+    "source_file": "XC1175066 - Little Bunting - Emberiza pusilla.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "dalmatian-pelican": {
+    "xeno_canto": "XC331137",
+    "url": "https://xeno-canto.org/331137",
+    "common_name": "Dalmatian Pelican",
+    "scientific_name": "Pelecanus crispus",
+    "source_file": "XC331137 - Dalmatian Pelican - Pelecanus crispus.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "common-shelduck": {
+    "xeno_canto": "XC793117",
+    "url": "https://xeno-canto.org/793117",
+    "common_name": "Common Shelduck",
+    "scientific_name": "Tadorna tadorna",
+    "source_file": "XC793117 - Common Shelduck - Tadorna tadorna.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "eurasian-wigeon": {
+    "xeno_canto": "XC872897",
+    "url": "https://xeno-canto.org/872897",
+    "common_name": "Eurasian Wigeon",
+    "scientific_name": "Mareca penelope",
+    "source_file": "XC872897 - Eurasian Wigeon - Mareca penelope.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "house-swift": {
+    "xeno_canto": "XC942392",
+    "url": "https://xeno-canto.org/942392",
+    "common_name": "House Swift",
+    "scientific_name": "Apus nipalensis subfurcatus",
+    "source_file": "XC942392 - House Swift - Apus nipalensis subfurcatus.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "black-capped-kingfisher": {
+    "xeno_canto": "XC1046776",
+    "url": "https://xeno-canto.org/1046776",
+    "common_name": "Black-capped Kingfisher",
+    "scientific_name": "Halcyon pileata",
+    "source_file": "XC1046776 - Black-capped Kingfisher - Halcyon pileata.wav",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "white-throated-kingfisher": {
+    "xeno_canto": "XC1100471",
+    "url": "https://xeno-canto.org/1100471",
+    "common_name": "White-throated Kingfisher",
+    "scientific_name": "Halcyon smyrnensis perpulchra",
+    "source_file": "XC1100471 - White-throated Kingfisher - Halcyon smyrnensis perpulchra.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "black-faced-spoonbill": {
+    "xeno_canto": "XC134758",
+    "url": "https://xeno-canto.org/134758",
+    "common_name": "Black-faced Spoonbill",
+    "scientific_name": "Platalea minor",
+    "source_file": "XC134758 - Black-faced Spoonbill - Platalea minor.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  },
+  "black-headed-ibis": {
+    "xeno_canto": "XC460207",
+    "url": "https://xeno-canto.org/460207",
+    "common_name": "Black-headed Ibis",
+    "scientific_name": "Threskiornis melanocephalus",
+    "source_file": "XC460207 - Black-headed Ibis - Threskiornis melanocephalus.mp3",
+    "note": "Used whole and unmodified. Check the licence and credit the recordist on the Xeno-canto page before any public showing."
+  }
+}
