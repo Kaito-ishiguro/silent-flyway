@@ -31,9 +31,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { NetworkDomain } from './networkDomain.js';
 import { YearRingDomain } from './yearRing.js';
 import { YearPulseDomain } from './yearPulse.js';
-import { SpeciesTerrainDomain } from './speciesTerrain.js';
+import { HabitatDomain } from './habitat.js';
 import { AxesOverlay } from './axesOverlay.js';
 import { Scoreboard, SCOREBOARD_CSS } from './scoreboard.js';
+import { Ambience } from './ambience.js';
+import { ExtinctionSting } from './extinctionSting.js';
 
 const style = document.createElement('style');
 style.textContent = SCOREBOARD_CSS;
@@ -59,7 +61,29 @@ const el = {
   voices: document.getElementById('voices'),
   year: document.getElementById('year'),
   banner: document.getElementById('banner'),
+  flash: document.getElementById('deathFlash'),
+  score: document.getElementById('scoreBtn'),
 };
+
+// The music bed and the extinction sting. Both need a real click before a
+// browser will let them make a sound, so both are armed from the play button.
+const ambience = new Ambience();
+const sting = new ExtinctionSting();
+ambience.onStatus = (st) => {
+  el.score.classList.toggle('active', st !== 'off' && st !== 'unavailable');
+  el.score.classList.toggle('dead', st === 'unavailable');
+  el.score.title = {
+    on: 'music bed - click to mute',
+    off: 'music bed muted - click to unmute',
+    idle: 'the music bed under the piece',
+    loading: 'music bed - loading',
+    unavailable: 'music bed unavailable (the embed is blocked here)',
+  }[st];
+};
+el.score.addEventListener('click', () => {
+  if (ambience.failed) return;
+  ambience.toggle();
+});
 
 // ---------------------------------------------------------------- three.js
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -108,19 +132,36 @@ audio.preload = 'auto';
 // dev hook: scrub, inspect, and rebuild the scene after poking at the data
 window.__flyway = {
   audio,
+  camera,
+  controls,
+  get habitat() { return habitat; },
+  get ambience() { return ambience; },
+  get sting() { return sting; },
   get domains() { return domains; },
   get f() { return features; },
   rebuild: () => buildDomains(features),
 };
 let playing = false;
 
-el.play.addEventListener('click', () => (playing ? audio.pause() : audio.play()));
+el.play.addEventListener('click', () => {
+  if (playing) { audio.pause(); return; }
+  // Arm both synthetic sources inside the click itself. Doing it from the
+  // audio element's 'play' event instead loses the user gesture and the
+  // browser silently refuses to start either one.
+  sting.arm();
+  ambience.start();
+  audio.play();
+});
 audio.addEventListener('play', () => {
   playing = true;
   el.play.innerHTML = '&#10074;&#10074; pause';
   setSculpture(false);
 });
-audio.addEventListener('pause', () => { playing = false; el.play.innerHTML = '&#9654; play'; });
+audio.addEventListener('pause', () => {
+  playing = false;
+  el.play.innerHTML = '&#9654; play';
+  ambience.pause();
+});
 audio.addEventListener('ended', () => {
   setSculpture(true);
   banner('Silent Flyway', 'everything this bay used to hear');
@@ -132,6 +173,7 @@ function setSculpture(on) {
   for (const d of domains) d.setSculpture?.(on);
   bloom.strength = on ? BLOOM_SCULPTURE : BLOOM_LIVE;
   el.sculpt.classList.toggle('active', on);
+  ambience.setSculpture(on);
 }
 el.sculpt.addEventListener('click', () => setSculpture(!sculpture));
 
@@ -148,51 +190,20 @@ let features = null;
 let networkDomains = [];    // the species voices; camera + graph hunt among them
 let axesOverlay = null;
 let axesOn = true;
-let laneLabels = [];
 let scoreboard = null;
+let habitat = null;
 
-/** Floating name for one species' lane, in that species' own colour. */
-function speciesLabel(s) {
-  const size = 30, pad = 8;
-  // A lane with no recording is named in outline rather than solid, so the
-  // scene itself says "this bird is present in the data but has no voice"
-  // without needing a legend to explain it.
-  const mute = s.has_audio === false;
-  const text = s.common_name;
-  const cv = document.createElement('canvas');
-  let ctx = cv.getContext('2d');
-  ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
-  cv.width = ctx.measureText(text).width + pad * 2;
-  cv.height = size + pad * 2;
-  ctx = cv.getContext('2d');
-  ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
-  if (mute) {
-    ctx.strokeStyle = s.color;
-    ctx.lineWidth = 1.2;
-    ctx.strokeText(text, pad, size + pad / 2);
-  } else {
-    ctx.fillStyle = s.color;
-    ctx.fillText(text, pad, size + pad / 2);
-  }
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false,
-  }));
-  sprite.scale.set(cv.width * 0.2, cv.height * 0.2, 1);
-  sprite.userData.slug = s.slug;
-  sprite.userData.mute = mute;
-  return sprite;
-}
+// Species names used to float in the scene as big coloured sprites around the
+// rim. They were the only identity key back when there was no scoreboard; now
+// that there is one they said the same thing twice and won, because 30px of
+// saturated type beats a point cloud for attention every time. The board on
+// the left names every bird, in its own colour, with its own number. The 3D is
+// free to be the bay again.
 
 function buildDomains(f) {
   for (const d of domains) d.dispose(scene);
-  for (const l of laneLabels) {
-    scene.remove(l);
-    l.material.map.dispose();
-    l.material.dispose();
-  }
   domains = [];
   networkDomains = [];
-  laneLabels = [];
 
   // EVERY species gets a lane, a colour and a row, whether or not it has a
   // recording. Some of these birds have no voice here because no recording has
@@ -233,18 +244,6 @@ function buildDomains(f) {
       inner: 78,
     };
 
-    // Name each species in the scene itself, so the 3D stands on its own in a
-    // screenshot without the HTML scoreboard. Now that voices share the bay
-    // these are a colour key around the rim rather than a marker of territory,
-    // so they sit well outside where the birds fly.
-    {
-      const a = (i / n) * Math.PI * 2;
-      const label = speciesLabel(s);
-      label.position.set(Math.cos(a) * 300, 44 + Math.sin(i * 2.4) * 26, Math.sin(a) * 300);
-      laneLabels.push(label);
-      scene.add(label);
-    }
-
     const stem = f.stems[s.slug];
     if (!stem) return;            // no recording: lane stays dark, row stays live
 
@@ -280,7 +279,14 @@ function buildDomains(f) {
   domains.push(new YearRingDomain(f.meta, f.species, { y: -126, radius: 250 }));
   domains.push(new YearPulseDomain(f.meta, f.years, total.map((v) => v / tmax),
     { y: -126, radius: 250 }));
-  domains.push(new SpeciesTerrainDomain(f.meta, f.species, { y: -126 }));
+
+  // The annulus outside the year clock used to hold fifteen nested decline
+  // rings. They were accurate and unreadable, and they were saying what the
+  // scoreboard already says. It holds the habitat now: forest in 1959, and
+  // whatever the forest has been turned into by the year you are hearing.
+  habitat = new HabitatDomain(f.meta, f.species, { y: -126, fog: scene.fog.density });
+  habitat.setPointPixelRatio(PIXEL_RATIO);
+  domains.push(habitat);
 
   const prevCam = el.cam.value;
   el.cam.innerHTML = '<option value="orbit">orbit camera</option>' + networkDomains
@@ -307,27 +313,43 @@ el.axes.addEventListener('click', () => {
   axesOverlay?.setVisible(axesOn);
 });
 
-// A lane whose species has gone stays in place but dims to a ghost of itself,
-// so the empty wedge is still legible as something that used to be occupied
-// rather than just absence.
-function updateLaneLabels(year) {
-  if (!features) return;
-  const i = Math.round(year - features.meta.start_year);
-  for (const l of laneLabels) {
-    const s = features.species.find((x) => x.slug === l.userData.slug);
-    if (!s) continue;
-    const n = s.curve[Math.max(0, Math.min(s.curve.length - 1, i))] ?? 0;
-    const lit = n <= 0 ? 0.22 : 0.55 + 0.45 * Math.sqrt(n / (s.peak || 1));
-    l.material.opacity = l.userData.mute ? lit * 0.6 : lit;
-  }
-}
-
 let bannerTimer = null;
 function banner(title, sub) {
+  clearTimeout(bannerTimer);
+  el.banner.classList.remove('gone');
   el.banner.innerHTML = `${title}<small>${sub}</small>`;
   el.banner.style.opacity = '1';
-  clearTimeout(bannerTimer);
   bannerTimer = setTimeout(() => { el.banner.style.opacity = '0'; }, 4200);
+}
+
+// ------------------------------------------------------------ an extinction
+// The one event in the piece allowed to interrupt it. Sound, frame and camera
+// all move at once, because a species vanishing from a bay is the only thing
+// here that is not gradual - everything else is a slope, this is a step.
+let shake = 0;
+
+function extinction(s) {
+  clearTimeout(bannerTimer);
+  el.banner.classList.remove('gone');
+  void el.banner.offsetWidth;        // restart the entry on back-to-back deaths
+  el.banner.classList.add('gone');
+  el.banner.innerHTML = `<span class="gone-name">${s.common_name}</span>gone`
+    + `<small>last recorded in Hong Kong, ${s.extirpated_year}</small>`;
+  el.banner.style.opacity = '1';
+  bannerTimer = setTimeout(() => { el.banner.style.opacity = '0'; }, 7000);
+
+  el.flash.classList.remove('fire');
+  void el.flash.offsetWidth;
+  el.flash.classList.add('fire');
+
+  el.year.classList.add('gone');
+  clearTimeout(extinction.yearTimer);
+  extinction.yearTimer = setTimeout(() => el.year.classList.remove('gone'), 3400);
+
+  sting.fire();
+  ambience.duck();                   // the bed gets out of the shot's way
+  habitat?.strike();                 // and the city takes the ground for good
+  shake = 1;
 }
 
 // ------------------------------------------------------------- radar chart
@@ -573,6 +595,30 @@ function drawGraph(t) {
   polyline(stem.centroid, i0, i1, 500, 9000, '#6fe0c8', W, H);          // brightness
 }
 
+// ------------------------------------------------------------- the pressure
+// One number - how much city there is - moved out to everything that should
+// respond to it. The scene does not just contain a city, it is affected by
+// one: the dark it opened in is washed out, the bloom that made a handful of
+// birds glow has to give way to ten thousand lit windows, and the anxious
+// music that was barely there at the start is leaning on you by the end.
+// Not quite the black the piece used to open in: a wetland at dawn has a
+// green cast in the air, and having somewhere to travel FROM is what makes
+// the sodium at the other end read as a change rather than a colour grade.
+const FOG_WILD = new THREE.Color(0x050b09);
+const FOG_CITY = new THREE.Color(0x1b1410);
+const fogTmp = new THREE.Color();
+
+function applyPressure() {
+  if (!habitat) return;
+  const c = habitat.cityness;
+  scene.fog.color.copy(fogTmp.copy(FOG_WILD).lerp(FOG_CITY, c));
+  // Bloom is tuned for a dark stage. Left alone it turns the finished skyline
+  // into a white smear, so it stands down as the lights come up.
+  if (!sculpture) bloom.strength = BLOOM_LIVE * (1 - 0.42 * c);
+  renderer.toneMappingExposure = 1.15 - 0.18 * c;
+  ambience.setPressure(c);
+}
+
 // --------------------------------------------------------------- main loop
 const announced = new Set();
 
@@ -587,6 +633,18 @@ renderer.setAnimationLoop(() => {
   if (!scrubbing) el.seek.value = t;
   if (el.cam.value.startsWith('follow:')) updateFollowCamera(dt, t);
   else controls.update();
+
+  // The jolt an extinction puts through the frame. Applied after the camera
+  // has been placed, so it behaves the same in orbit and in follow - both
+  // recompute position from scratch every frame, so nothing accumulates.
+  if (shake > 0.002) {
+    const k = shake * shake * 9;
+    camera.position.x += (Math.random() * 2 - 1) * k;
+    camera.position.y += (Math.random() * 2 - 1) * k;
+    camera.position.z += (Math.random() * 2 - 1) * k;
+    shake *= Math.pow(0.1, dt);
+  } else shake = 0;
+
   drawGraph(t);
 
   if (features) {
@@ -594,15 +652,14 @@ renderer.setAnimationLoop(() => {
     const year = m.start_year + (t / m.duration) * (m.end_year - m.start_year);
     el.year.textContent = Math.min(m.end_year, Math.round(year));
     scoreboard?.update(year);
-    updateLaneLabels(year);
+    applyPressure();
     el.clock.textContent = `${Math.round(year)} · ${t.toFixed(1)}s / ${Math.round(m.duration)}s`;
 
     // call the extinctions as they land
     for (const s of features.species) {
       if (s.extirpated_t != null && t >= s.extirpated_t && !announced.has(s.slug)) {
         announced.add(s.slug);
-        if (playing) banner(`${s.common_name} — gone`,
-          `last recorded in Hong Kong, ${s.extirpated_year}`);
+        if (playing) extinction(s);
       }
     }
     if (t < 1) announced.clear();

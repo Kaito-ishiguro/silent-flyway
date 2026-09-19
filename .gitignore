@@ -28,3 +28,8 @@ dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# --- office lock files --------------------------------------------------
+# Excel and Word drop these beside an open document; they carry the name of
+# whoever has the file open and are meaningless to anyone else.
+~$*
