@@ -353,21 +353,29 @@ def compose(plot: bool) -> None:
     for i, sp in enumerate(cfg["species"]):
         slug = sp["slug"]
         src = CALLS / f"{slug}.wav"
-        if not src.exists():
-            print(f"  [skip] {slug}: no recording at {src.name}")
-            continue
-
-        # the recording, whole. Peak-normalized so species sit at comparable
-        # levels, and NOT trimmed - its own length is part of its voice.
-        call, _ = librosa.load(src, sr=SR, mono=True)
-        call = (call / (np.abs(call).max() + 1e-12) * 0.9).astype(np.float32)
-        call_dur = len(call) / SR
-
         pop = Population(sp)
-        events = score(pop, call_dur, tl, i)
-        mono, stereo = render(call, events, n)
-        mixdown += stereo
-        tracks[slug] = mono
+
+        # A species with no recording yet is still part of the piece. It keeps
+        # its lane, its colour, its decline ring, its row on the scoreboard and
+        # its mark on the year clock - it simply has no voice. Some of these
+        # birds are silent in Hong Kong anyway (the pelican and the ibis were
+        # never heard here), so silence is not always a gap waiting to be
+        # filled; for those it is the truth.
+        has_audio = src.exists()
+        events: list[dict] = []
+        call_dur = 0.0
+
+        if has_audio:
+            # the recording, whole. Peak-normalized so species sit at
+            # comparable levels, and NOT trimmed - its length is part of its
+            # voice.
+            call, _ = librosa.load(src, sr=SR, mono=True)
+            call = (call / (np.abs(call).max() + 1e-12) * 0.9).astype(np.float32)
+            call_dur = len(call) / SR
+            events = score(pop, call_dur, tl, i)
+            mono, stereo = render(call, events, n)
+            mixdown += stereo
+            tracks[slug] = mono
 
         ext_t = None
         if sp.get("extirpated_year") is not None:
@@ -397,6 +405,7 @@ def compose(plot: bool) -> None:
             "peak": pop.peak,
             "now": round(pop.at(y1), 1),
             "decline": round(1 - pop.at(y1) / (pop.peak or 1), 4),
+            "has_audio": has_audio,
             "calls": len(events),
             "call_duration": round(call_dur, 3),
             "curve": curve,
@@ -405,7 +414,9 @@ def compose(plot: bool) -> None:
         })
         n_est = sum(1 for a in sp["anchors"] if a["basis"] == "estimated")
         flag = f"  [!] {n_est}/{len(sp['anchors'])} anchors are PLACEHOLDERS" if n_est else ""
-        print(f"  [{slug}] call {call_dur:.2f}s  {len(events)} calls  "
+        voice = (f"call {call_dur:.2f}s  {len(events):>4} calls"
+                 if has_audio else "SILENT - no recording yet ")
+        print(f"  [{slug[:26]:<26}] {voice}  "
               f"{metrics.get(metric, {}).get('label', metric)} "
               f"{pop.peak} -> {pop.at(y1):.0f}{flag}")
 
@@ -460,8 +471,13 @@ def compose(plot: bool) -> None:
         [{"slug": SLUG, "title": meta["title"], "duration": meta["duration"]}],
         indent=1), encoding="utf-8")
 
-    print(f"[done] {meta['species_count']} species, {meta['calls_total']} calls, "
-          f"{meta['extinct_count']} locally extinct")
+    silent = [s for s in species_meta if not s["has_audio"]]
+    print(f"[done] {meta['species_count']} species "
+          f"({meta['species_count'] - len(silent)} with a voice, {len(silent)} silent), "
+          f"{meta['calls_total']} calls, {meta['extinct_count']} locally extinct")
+    if silent:
+        print(f"  awaiting recordings in calls/: "
+              f"{', '.join(s['slug'] + '.wav' for s in silent)}")
 
     # Say it every single build. The whole argument of this piece is that the
     # sound is the data, which is worth nothing if the data is invented.

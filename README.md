@@ -138,6 +138,25 @@ Look at `data/silent-flyway/check.png` before trusting the 3D: each species
 gets a strip showing its call level against the population curve it is meant
 to be following, with a red line at any local extinction.
 
+## Species without a recording
+
+A species with no file in `calls/` is still part of the piece. It keeps its
+lane, its colour, its decline ring, its row on the scoreboard and its mark on
+the year clock &mdash; it simply has no voice. Its lane label is drawn in
+outline rather than solid, and its scoreboard dot is hollow, so the scene says
+*present in the data, absent in sound* without needing a legend.
+
+That is not only a placeholder state. Several of these birds have no voice in
+Hong Kong at all: the Dalmatian Pelican and Black-headed Ibis were never
+recorded calling here, and the Black-faced Spoonbill is effectively silent on
+its wintering grounds. For those, an empty lane is the honest rendering, and
+any recording used instead would have to come from breeding grounds an ocean
+away &mdash; true of the species, but not a sound this bay ever made.
+
+Drop a file in `calls/<slug>.wav` and rerun `compose.py`; the lane fills in and
+nothing else moves, because lane positions are assigned across the full species
+list rather than across the voiced ones.
+
 ## Population data, and being honest about it
 
 `species/species.json` stores **anchors**, not a continuous series, because

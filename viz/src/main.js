@@ -150,20 +150,32 @@ let scoreboard = null;
 /** Floating name for one species' lane, in that species' own colour. */
 function speciesLabel(s) {
   const size = 30, pad = 8;
+  // A lane with no recording is named in outline rather than solid, so the
+  // scene itself says "this bird is present in the data but has no voice"
+  // without needing a legend to explain it.
+  const mute = s.has_audio === false;
+  const text = s.common_name;
   const cv = document.createElement('canvas');
   let ctx = cv.getContext('2d');
   ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
-  cv.width = ctx.measureText(s.common_name).width + pad * 2;
+  cv.width = ctx.measureText(text).width + pad * 2;
   cv.height = size + pad * 2;
   ctx = cv.getContext('2d');
   ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
-  ctx.fillStyle = s.color;
-  ctx.fillText(s.common_name, pad, size + pad / 2);
+  if (mute) {
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 1.2;
+    ctx.strokeText(text, pad, size + pad / 2);
+  } else {
+    ctx.fillStyle = s.color;
+    ctx.fillText(text, pad, size + pad / 2);
+  }
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
     map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false,
   }));
   sprite.scale.set(cv.width * 0.2, cv.height * 0.2, 1);
   sprite.userData.slug = s.slug;
+  sprite.userData.mute = mute;
   return sprite;
 }
 
@@ -178,15 +190,22 @@ function buildDomains(f) {
   networkDomains = [];
   laneLabels = [];
 
-  const sp = f.species.filter((s) => f.stems[s.slug]);
+  // EVERY species gets a lane, a colour and a row, whether or not it has a
+  // recording. Some of these birds have no voice here because no recording has
+  // arrived yet; others - the pelican, the ibis - were never heard in Hong Kong
+  // at all. A wedge that stays dark while the others sing is not a hole in the
+  // piece, it is part of what the piece is saying. Lane positions are assigned
+  // across the full list so they stay put as recordings arrive.
+  const sp = f.species;
+  const voiced = sp.filter((s) => f.stems[s.slug]);
+
   // The loudest species leads: it gets the shooting-star head, the way the
   // lead instrument did. In a full flyway that is whichever duck was most
   // abundant, which is exactly who dominated the real soundscape.
-  const leadSlug = sp.reduce((a, b) => ((a.share ?? 0) >= (b.share ?? 0) ? a : b), sp[0])?.slug;
+  const leadSlug = voiced.length
+    ? voiced.reduce((a, b) => ((a.share ?? 0) >= (b.share ?? 0) ? a : b), voiced[0]).slug
+    : null;
 
-  // Lanes. Each species gets its own wedge of the bay so an audience can see
-  // how many different birds are present and watch one wedge go dark. A single
-  // species keeps the whole circle to itself and roams like the jazz voices.
   const n = sp.length;
   const LANE_GAP = 0.14;          // radians of empty space between streams
 
@@ -199,7 +218,20 @@ function buildDomains(f) {
       inner: 42,                  // keeps the streams off the centre pole
     };
 
-    const d = new NetworkDomain(f.stems[s.slug], f.meta, {
+    // name the lane in the scene itself, in the species' colour, so the 3D
+    // stands on its own in a screenshot without the HTML scoreboard
+    if (lane) {
+      const mid = (lane.a0 + lane.a1) / 2;
+      const label = speciesLabel(s);
+      label.position.set(Math.cos(mid) * 168, 30, Math.sin(mid) * 168);
+      laneLabels.push(label);
+      scene.add(label);
+    }
+
+    const stem = f.stems[s.slug];
+    if (!stem) return;            // no recording: lane stays dark, row stays live
+
+    const d = new NetworkDomain(stem, f.meta, {
       center: new THREE.Vector3(0, 30, 0),
       spread: isLead ? 130 : 115,
       tint: new THREE.Color(s.color),
@@ -220,16 +252,6 @@ function buildDomains(f) {
     d.isLead = isLead;
     domains.push(d);
     networkDomains.push(d);
-
-    // name the lane in the scene itself, in the species' colour, so the 3D
-    // stands on its own in a screenshot without the HTML scoreboard
-    if (lane) {
-      const mid = (lane.a0 + lane.a1) / 2;
-      const label = speciesLabel(s);
-      label.position.set(Math.cos(mid) * 168, 30, Math.sin(mid) * 168);
-      laneLabels.push(label);
-      scene.add(label);
-    }
   });
 
   const years = f.meta.end_year - f.meta.start_year + 1;
@@ -277,7 +299,8 @@ function updateLaneLabels(year) {
     const s = features.species.find((x) => x.slug === l.userData.slug);
     if (!s) continue;
     const n = s.curve[Math.max(0, Math.min(s.curve.length - 1, i))] ?? 0;
-    l.material.opacity = n <= 0 ? 0.22 : 0.55 + 0.45 * Math.sqrt(n / (s.peak || 1));
+    const lit = n <= 0 ? 0.22 : 0.55 + 0.45 * Math.sqrt(n / (s.peak || 1));
+    l.material.opacity = l.userData.mute ? lit * 0.6 : lit;
   }
 }
 

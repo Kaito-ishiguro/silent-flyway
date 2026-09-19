@@ -26,6 +26,11 @@ export class Scoreboard {
     const comparable = species.filter((s) => s.comparable);
     this.comparable = comparable;
 
+    // Fifteen species do not fit at the type size that suits five. Past ten,
+    // the board tightens rather than running off the bottom of the screen -
+    // losing the last rows would defeat the point of having them.
+    root.classList.toggle('compact', species.length > 10);
+
     root.innerHTML = `
       <div class="sb-head">Population</div>
       <div class="sb-rows"></div>
@@ -38,8 +43,12 @@ export class Scoreboard {
     this.rows = species.map((s) => {
       const el = document.createElement('div');
       el.className = 'sb-row';
+      // an unvoiced species gets a hollow dot, matching its outlined lane label
+      const dot = s.has_audio === false
+        ? `border:1.5px solid ${s.color};background:transparent`
+        : `background:${s.color};box-shadow:0 0 12px ${s.color}`;
       el.innerHTML = `
-        <span class="sb-dot" style="background:${s.color};box-shadow:0 0 12px ${s.color}"></span>
+        <span class="sb-dot" style="${dot}"></span>
         <span class="sb-name">${s.common_name}</span>
         <span class="sb-num">0</span>
         <span class="sb-metric">${s.metric_label}</span>
@@ -89,6 +98,10 @@ export class Scoreboard {
       if (gone && s.extirpated_year != null) {
         r.metric.textContent = `extirpated ${s.extirpated_year}`;
       }
+      // A row can be silent for two quite different reasons and the board
+      // should not blur them: either no recording has been supplied yet, or
+      // the bird genuinely has no voice in this bay.
+      r.el.classList.toggle('mute', s.has_audio === false && !gone);
       if (s.comparable) total += n;
     });
 
@@ -148,6 +161,9 @@ export const SCOREBOARD_CSS = `
   .sb-row.gone .sb-num { color: #55606b; font-weight: 200; }
   .sb-row.gone .sb-dot { background: #263039 !important; box-shadow: none !important; }
   .sb-row.gone .sb-metric { color: #7a5560; }
+  .sb-row.mute .sb-name { color: #9aa4b0; }
+  .sb-row.mute .sb-num { color: #c3cbd4; font-weight: 200; }
+  .sb-row.mute .sb-fill { opacity: .45; }
   .sb-total {
     margin-top: 16px; padding-top: 11px;
     border-top: 1px solid rgba(255,255,255,.1);
@@ -156,5 +172,27 @@ export const SCOREBOARD_CSS = `
   .sb-total-lab {
     display: block; font-size: 9.5px; letter-spacing: .05em; color: #6f7885;
     margin-top: 3px;
+  }
+
+  /* ---- compact: many species, same information, less height ---- */
+  #scoreboard.compact { top: 74px; width: 286px; padding: 11px 13px 12px; }
+  #scoreboard.compact .sb-head { margin-bottom: 7px; }
+  #scoreboard.compact .sb-row {
+    grid-template-columns: 9px minmax(0, 1fr) auto;
+    column-gap: 7px; row-gap: 0; margin-bottom: 5px;
+  }
+  #scoreboard.compact .sb-dot { width: 9px; height: 9px; }
+  #scoreboard.compact .sb-name { font-size: 11px; }
+  #scoreboard.compact .sb-num { font-size: 16px; min-width: 50px; }
+  #scoreboard.compact .sb-metric { font-size: 8px; }
+  #scoreboard.compact .sb-bar { height: 2px; width: 84px; }
+  #scoreboard.compact .sb-total { margin-top: 10px; padding-top: 8px; }
+  #scoreboard.compact .sb-total-num { font-size: 22px; }
+  #scoreboard.compact .sb-total-lab { font-size: 8.5px; }
+
+  /* very short windows: drop the per-row metric caption, keep the numbers */
+  @media (max-height: 760px) {
+    #scoreboard.compact .sb-metric { display: none; }
+    #scoreboard.compact .sb-row { margin-bottom: 4px; }
   }
 `;
