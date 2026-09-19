@@ -1,8 +1,14 @@
 {
-  "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. Each anchor carries a 'basis' - 'documented' means the figure appears in a cited survey or report and the 'source' field names it; 'estimated' means it is a placeholder used only to span a gap and MUST NOT be presented as fact. The viewer draws estimated stretches dashed and says so on screen. See docs/data-research-prompt.md for how the real figures are being sourced.",
+  "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. 'basis' is 'documented' only when the figure was read back off its cited source and confirmed; 'estimated' means a bound, a midpoint convention, or a placeholder, and MUST NOT be presented as fact. The viewer draws estimated stretches dashed. Species with no recording in calls/ are skipped by compose.py and wait here until one arrives.",
+
+  "_sources": {
+    "avifauna": "Carey, G. J., M. R. Leven and C. C. Pang (2023), The Avifauna of Hong Kong, HKBWS - https://avifauna.hkbws.org.hk",
+    "bfs_census": "International Black-faced Spoonbill Census, HKBWS - https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/",
+    "_note": "Deep Bay waterbird counts after 1998 come from the AFCD/HKBWS Mai Po Inner Deep Bay Ramsar Site Waterbird Monitoring Programme. Summary figures published in the sources above are quoted with attribution; the raw programme data is HKSAR Government copyright and would need written AFCD permission to reuse."
+  },
 
   "_metrics": {
-    "_comment": "Abundance in Hong Kong is not recorded the same way for every bird, and pretending otherwise is the easiest way to lie with this piece. Waterbirds get counted in Deep Bay; passerines do not, and are known instead from passage counts or from atlas occupancy. Each species therefore declares which metric its numbers are, and the viewer scales and labels accordingly instead of putting a duck flock and a bunting passage count on one axis.",
+    "_comment": "Abundance in Hong Kong is not recorded the same way for every bird, and pretending otherwise is the easiest way to lie with this piece. Waterbirds are counted in Deep Bay; passerines are not, and are known from passage counts; widespread residents are known only from atlas occupancy. Each species declares its metric and the viewer scales and labels within it, never across.",
     "peak_winter_count": { "label": "peak winter count", "unit": "individuals", "comparable": true },
     "mean_winter_count": { "label": "mean winter count", "unit": "individuals", "comparable": true },
     "passage_count": { "label": "peak passage count", "unit": "individuals", "comparable": false },
@@ -12,7 +18,7 @@
   },
 
   "timeline": {
-    "start_year": 1960,
+    "start_year": 1959,
     "end_year": 2026,
     "seconds_per_decade": 18
   },
@@ -25,21 +31,213 @@
       "color": "#f2c230",
       "guild": "farmland passerine",
       "iucn": "Critically Endangered",
-      "habitat": "Wet agriculture and paddy, Long Valley; reedbed and scrub on passage",
+      "habitat": "Wet agriculture and paddy at Long Valley; reedbed roosts on autumn passage",
       "metric": "passage_count",
       "extirpated_year": null,
       "threats": [
         "Industrial-scale trapping on migration through mainland China",
-        "Loss of wet agriculture and paddy at Hong Kong stopover sites",
+        "Loss of wet agriculture and reedbed roost sites in Hong Kong",
         "Breeding-ground habitat loss across the Palearctic"
       ],
-      "_data_status": "PLACEHOLDER ANCHORS - awaiting sourced figures. Documented context so far: global population fell by an estimated 84-95% between 1980 and 2013 (Kamp et al. 2015, Conservation Biology), and IUCN uplisted the species Least Concern (2004) -> Vulnerable (2008) -> Endangered (2013) -> Critically Endangered (2017). Those are GLOBAL, not Hong Kong figures, and are not used as anchors here. Hong Kong needs peak autumn passage counts from HKBWS records and Long Valley monitoring.",
+      "_data_status": "VERIFIED against the HKBWS avifauna account. This is an autumn passage series - the highest single count recorded in each cited year, at varying sites - not a census of birds present. Global context, NOT used as anchors: an estimated 84-95% global decline 1980-2013 (Kamp et al. 2015), and IUCN uplisting LC (2004) -> VU (2008) -> EN (2013) -> CR (2017). No documented HK count located after 2014, so the curve holds flat from there rather than inventing a recent figure.",
       "anchors": [
-        { "year": 1960, "count": 400, "basis": "estimated", "source": null, "note": "PLACEHOLDER pre-collapse baseline - no HK figure located" },
-        { "year": 1980, "count": 380, "basis": "estimated", "source": null, "note": "PLACEHOLDER - global collapse is dated from about here" },
-        { "year": 2000, "count": 150, "basis": "estimated", "source": null, "note": "PLACEHOLDER - needs HKBWS passage counts" },
-        { "year": 2013, "count": 40, "basis": "estimated", "source": null, "note": "PLACEHOLDER - end of the Kamp et al. global assessment window" },
-        { "year": 2026, "count": 62, "basis": "estimated", "source": null, "note": "PLACEHOLDER - recent autumn passage flocks at Long Valley reported around this size; needs a citation before it is treated as documented" }
+        { "year": 1959, "count": 3000, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "pre-roost gathering at Ping Shan, 19 Oct 1959 - highest count on record for Hong Kong" },
+        { "year": 1994, "count": 610, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "over Mong Tseng, 21 Oct 1994 - next largest on record" },
+        { "year": 2002, "count": 300, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "Mai Po, 20 Oct 2002 - highest count since 1999" },
+        { "year": 2014, "count": 120, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "Long Valley, 10 Nov 2014 - next highest since 1999" }
+      ]
+    },
+
+    {
+      "slug": "eurasian-coot",
+      "common_name": "Eurasian Coot",
+      "scientific_name": "Fulica atra",
+      "color": "#8fb6ff",
+      "guild": "waterbird",
+      "iucn": "Least Concern",
+      "habitat": "Deep Bay, Mai Po gei wais and the San Tin commercial fishponds",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Milder winters allowing birds to short-stop at higher latitudes",
+        "Loss and conversion of commercial fishponds",
+        "Degradation of Deep Bay benthic habitat"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. The steepest usable curve in the dataset: 3,245 down to 66.",
+      "anchors": [
+        { "year": 1971, "count": 450, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "winter 1970/71, highest in that winter being 450 in January" },
+        { "year": 1972, "count": 2600, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "2,600 present in early February 1972" },
+        { "year": 1984, "count": 1200, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "SOURCE GIVES A RANGE, NOT A YEAR: 'from winter 1983/84 until 1996/97 the peak winter count was often 1,200 or more'. Pinning it to 1984 is a convention, not a count" },
+        { "year": 1992, "count": 3245, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "highest being 3,245 on 12 January 1992" },
+        { "year": 2012, "count": 66, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "since winter 2011/12 the highest winter waterbird count is 66 - an upper bound across all later winters" }
+      ]
+    },
+
+    {
+      "slug": "northern-pintail",
+      "common_name": "Northern Pintail",
+      "scientific_name": "Anas acuta",
+      "color": "#5b8cff",
+      "guild": "waterbird",
+      "iucn": "Least Concern",
+      "habitat": "Deep Bay intertidal mudflats, roosting in Mai Po gei wais",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Site-specific degradation of Deep Bay",
+        "Climate-induced short-stopping",
+        "Hunting pressure along the flyway"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. CAUTION ON SPATIAL EXTENT: the 1997 figure is a whole-Deep-Bay count (including the Shenzhen side) and the 2000 figure is the Hong Kong side only. They are not strictly the same quantity; the source states both as separate records and this file keeps them separate rather than reconciling them.",
+      "anchors": [
+        { "year": 1997, "count": 8651, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "highest WHOLE Deep Bay count, 8,651 on 15 February 1997" },
+        { "year": 2000, "count": 8086, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "highest count on the HK SIDE of Deep Bay, 8,086 on 15 January 2000 - different spatial extent to the 1997 figure" },
+        { "year": 2020, "count": 2000, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "SOURCE GIVES AN UPPER BOUND: 'in the most recent three winter periods less than 2,000'. The true figure is below this" }
+      ]
+    },
+
+    {
+      "slug": "common-shelduck",
+      "common_name": "Common Shelduck",
+      "scientific_name": "Tadorna tadorna",
+      "color": "#c98cff",
+      "guild": "waterbird",
+      "iucn": "Least Concern",
+      "habitat": "Deep Bay intertidal mudflats, high-tide roosts in Mai Po ponds",
+      "metric": "peak_winter_count",
+      "extirpated_year": 2020,
+      "threats": [
+        "Climate-induced short-stopping",
+        "Degradation of Deep Bay benthic prey",
+        "Loss of undisturbed high-tide roosts"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. NOTE ON THE END DATE: a widely-cited 1998-2017 trend study reports 'no record after 2013', but the HKBWS account records a later bird, one present 26 February to 18 March 2020. This file uses 2020 as the last confirmed record. The species ceased to be a regular wintering bird around 2013; the 2020 bird was a single individual. The boom-and-bust shape here is real, not an artefact: 115, then 4,011, then nothing.",
+      "anchors": [
+        { "year": 1974, "count": 115, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "until the 1974-75 winter period the highest count was 115 - a maximum across all earlier years, not a single-year count" },
+        { "year": 1988, "count": 4011, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "peak of 4,011 birds on 17 January 1988, the highest on record in HK" },
+        { "year": 1992, "count": 387, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "sharp decline to 387 in winter 1991/92" },
+        { "year": 1997, "count": 2972, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "peak count of 2,972 in winter 1996/97" },
+        { "year": 2000, "count": 1300, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "the following three winter periods brought peak counts of approximately 1,300 birds - approximate as published" },
+        { "year": 2008, "count": 18, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "sharp decrease to 18 in winter 2007-08" },
+        { "year": 2013, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "2012/13, one present until 2 March" },
+        { "year": 2020, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "one on 26 February 2020, last seen 18 March - the final confirmed record" }
+      ]
+    },
+
+    {
+      "slug": "dalmatian-pelican",
+      "common_name": "Dalmatian Pelican",
+      "scientific_name": "Pelecanus crispus",
+      "color": "#ff5ea8",
+      "guild": "waterbird",
+      "iucn": "Near Threatened",
+      "habitat": "Deep Bay intertidal mudflats and the airspace over Mai Po",
+      "metric": "peak_winter_count",
+      "extirpated_year": 2010,
+      "threats": [
+        "Near-total collapse of the Mongolian breeding population",
+        "Loss of staging wetlands along the Chinese coast",
+        "Disturbance on the Deep Bay mudflats"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. The source names winter 1981-82 as 'a watershed'. ACOUSTIC CAVEAT: this species is essentially silent away from its breeding grounds and has never been recorded vocalising in Hong Kong, so a call recording would be representative of the species but not of the bird anyone here would have heard.",
+      "anchors": [
+        { "year": 1960, "count": 85, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "peak count of 85 on 21 February 1960" },
+        { "year": 1982, "count": 38, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "SOURCE GIVES A RANGE ACROSS A DECADE: 'during the 1980s the five highest peak counts were much lower, in the range 26-38'. 38 is the upper bound, pinned to the 1981-82 watershed by convention" },
+        { "year": 2004, "count": 10, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "SOURCE SAYS ONLY 'the last double-figure count occurred in winter 2004/05'. The true figure is 10 or more" },
+        { "year": 2010, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "final record of one on 3 January 2010" }
+      ]
+    },
+
+    {
+      "slug": "black-headed-ibis",
+      "common_name": "Black-headed Ibis",
+      "scientific_name": "Threskiornis melanocephalus",
+      "color": "#ff8a3d",
+      "guild": "waterbird",
+      "iucn": "Near Threatened",
+      "habitat": "Deep Bay intertidal mudflats and adjacent marsh",
+      "metric": "peak_winter_count",
+      "extirpated_year": 1999,
+      "threats": [
+        "Extirpation of the East Asian breeding population in Heilongjiang",
+        "Loss of intertidal foraging habitat",
+        "Disturbance"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. ACOUSTIC CAVEAT: largely silent away from breeding colonies. Only three documented counts, so the curve between them carries very little evidence.",
+      "anchors": [
+        { "year": 1973, "count": 18, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "18 on 8 April 1973" },
+        { "year": 1974, "count": 25, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "25 on 6 January 1974 - the highest count on record" },
+        { "year": 1999, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "the final record, 27 November 1999" }
+      ]
+    },
+
+    {
+      "slug": "black-faced-spoonbill",
+      "common_name": "Black-faced Spoonbill",
+      "scientific_name": "Platalea minor",
+      "color": "#6fe0c8",
+      "guild": "waterbird",
+      "iucn": "Endangered",
+      "habitat": "Deep Bay intertidal mudflats, roosting on managed commercial fishponds",
+      "metric": "peak_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Loss of fishpond roosts to the San Tin / Northern Metropolis development",
+        "Mangrove encroachment closing open tidal flat",
+        "Cessation of active gei wai management"
+      ],
+      "_data_status": "VERIFIED against the International Black-faced Spoonbill Census. THE POINT OF THIS SPECIES: globally it is a conservation success - 7,746 birds in 2026, a record - while Deep Bay has flatlined around 330-410 for a decade. Its share of the world population fell from about one fifth in 2011 to 4.4% in 2026. It is the voice that survives to the end and still represents a loss. ACOUSTIC CAVEAT: near-silent on the wintering grounds.",
+      "anchors": [
+        { "year": 2016, "count": 411, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "the local peak; the 2026 report refers to 'the peak of 411 recorded ten years ago'" },
+        { "year": 2017, "count": 375, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Hong Kong & Shenzhen (Deep Bay), 375, being 9.5% of the global total" },
+        { "year": 2018, "count": 350, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 350, 8.9% of the global total" },
+        { "year": 2019, "count": 383, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 383, 8.6% of the global total" },
+        { "year": 2025, "count": 328, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "derived by arithmetic from the 2026 report: 341 was 'an increase of 13 individuals' on the previous year" },
+        { "year": 2026, "count": 341, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "Deep Bay recorded 341 individuals, a 4.0% increase; share a historic low of 4.4%" }
+      ]
+    },
+
+    {
+      "slug": "black-capped-kingfisher",
+      "common_name": "Black-capped Kingfisher",
+      "scientific_name": "Halcyon pileata",
+      "color": "#4fc3f7",
+      "guild": "coastal resident",
+      "iucn": "Vulnerable",
+      "habitat": "Coastal wetland, gei wais, mangrove and tidal mudflat",
+      "metric": "mean_winter_count",
+      "extirpated_year": null,
+      "threats": [
+        "Coastal habitat destruction across its range",
+        "Loss of the shrubland-farmland-wetland ecotone",
+        "Channelisation of lowland rivers"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. Each anchor is a MEAN ACROSS SIX WINTERS, pinned to the midpoint of its period - not a single-year count. The same account also gives atlas occupancy falling from 2.4% (2001-05) to 0.2% (2016-19), which is a different metric and is not mixed in here.",
+      "anchors": [
+        { "year": 2001, "count": 8, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028100", "note": "mean peak count across the six winters 1998/99 to 2003/04; pinned to the period midpoint" },
+        { "year": 2018, "count": 1.6, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028100", "note": "mean peak count across the six winters 2015/16 to 2020/21; pinned to the period midpoint" }
+      ]
+    },
+
+    {
+      "slug": "white-throated-kingfisher",
+      "common_name": "White-throated Kingfisher",
+      "scientific_name": "Halcyon smyrnensis",
+      "color": "#26a69a",
+      "guild": "lowland resident",
+      "iucn": "Least Concern",
+      "habitat": "Fishponds and channels in winter, inland shrubland and hillside streams when breeding",
+      "metric": "atlas_occupancy",
+      "extirpated_year": null,
+      "threats": [
+        "Historical trapping for kingfisher-feather ornament",
+        "Contraction of lowland agricultural mosaic",
+        "Vegetation succession closing open ecotone"
+      ],
+      "_data_status": "VERIFIED against the HKBWS avifauna account. THIS IS OCCUPANCY, NOT A COUNT: the percentage of 1km squares occupied, which cannot be converted into a number of birds. Anchors are pinned to the midpoint of each multi-year atlas block. BREEDING season series used here; the account separately gives a winter series falling 9.4% to 5.7%, which is not mixed in. NOTE: an earlier secondary summary circulated figures of 21.9% falling to 5.4% for this species; the primary account does not support those numbers. Best audio prospect of the thirteen - Xeno-canto holds recordings made in Hong Kong itself.",
+      "anchors": [
+        { "year": 1994, "count": 7.3, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028300", "note": "breeding atlas 1993-96, 7.3% of 1km squares occupied; pinned to the period midpoint" },
+        { "year": 2017, "count": 3.0, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028300", "note": "breeding atlas 2016-19, 3.0% of 1km squares occupied; pinned to the period midpoint" }
       ]
     }
   ]
