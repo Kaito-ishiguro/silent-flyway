@@ -322,6 +322,7 @@ def stem_features(y: np.ndarray, grid: np.ndarray) -> dict:
 
 def compose(plot: bool) -> None:
     cfg = json.loads(SPECIES.read_text(encoding="utf-8"))
+    metrics = cfg.get("_metrics", {})
     tl = cfg["timeline"]
     y0, y1 = tl["start_year"], tl["end_year"]
     tl["duration"] = ((y1 - y0) / 10) * tl["seconds_per_decade"]
@@ -366,6 +367,7 @@ def compose(plot: bool) -> None:
         curve = [round(pop.at(y), 2) for y in range(y0, y1 + 1)]
         basis = [pop.basis_at(y) for y in range(y0, y1 + 1)]
 
+        metric = sp.get("metric", "peak_winter_count")
         species_meta.append({
             "slug": slug,
             "common_name": sp["common_name"],
@@ -373,6 +375,13 @@ def compose(plot: bool) -> None:
             "color": sp.get("color", "#8fd8ff"),
             "iucn": sp.get("iucn", ""),
             "habitat": sp.get("habitat", ""),
+            "metric": metric,
+            "metric_label": metrics.get(metric, {}).get("label", metric),
+            "metric_unit": metrics.get(metric, {}).get("unit", "individuals"),
+            # Only species measured the same way may share an absolute axis.
+            # An atlas occupancy percentage and a duck count are both "numbers"
+            # and mean nothing side by side.
+            "comparable": bool(metrics.get(metric, {}).get("comparable", False)),
             "threats": sp.get("threats", []),
             "extirpated_year": sp.get("extirpated_year"),
             "extirpated_t": ext_t,
@@ -385,8 +394,11 @@ def compose(plot: bool) -> None:
             "basis": basis,
             "anchors": sp["anchors"],
         })
+        n_est = sum(1 for a in sp["anchors"] if a["basis"] == "estimated")
+        flag = f"  [!] {n_est}/{len(sp['anchors'])} anchors are PLACEHOLDERS" if n_est else ""
         print(f"  [{slug}] call {call_dur:.2f}s  {len(events)} calls  "
-              f"peak {pop.peak} -> {pop.at(y1):.0f}")
+              f"{metrics.get(metric, {}).get('label', metric)} "
+              f"{pop.peak} -> {pop.at(y1):.0f}{flag}")
 
     if not tracks:
         sys.exit("no species had a recording in calls/ - nothing to compose")
@@ -441,6 +453,26 @@ def compose(plot: bool) -> None:
 
     print(f"[done] {meta['species_count']} species, {meta['calls_total']} calls, "
           f"{meta['extinct_count']} locally extinct")
+
+    # Say it every single build. The whole argument of this piece is that the
+    # sound is the data, which is worth nothing if the data is invented.
+    placeholders = [s for s in species_meta
+                    if any(a["basis"] == "estimated" for a in s["anchors"])]
+    if placeholders:
+        print()
+        print("  " + "!" * 68)
+        print("  PLACEHOLDER DATA IN THIS BUILD - do not present it as fact:")
+        for s in placeholders:
+            n = sum(1 for a in s["anchors"] if a["basis"] == "estimated")
+            print(f"    {s['common_name']}: {n} of {len(s['anchors'])} anchors estimated")
+        print("  See docs/data-research-prompt.md for sourcing the real figures.")
+        print("  " + "!" * 68)
+
+    mixed = {s["metric"] for s in species_meta}
+    if len(mixed) > 1:
+        print(f"\n  [metrics] this build mixes {len(mixed)} metrics: "
+              f"{', '.join(sorted(mixed))}")
+        print("            species are scaled within their own metric, never across")
 
     if plot:
         sanity_plot(result, out)

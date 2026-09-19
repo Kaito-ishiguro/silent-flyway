@@ -33,6 +33,11 @@ import { YearRingDomain } from './yearRing.js';
 import { YearPulseDomain } from './yearPulse.js';
 import { SpeciesTerrainDomain } from './speciesTerrain.js';
 import { AxesOverlay } from './axesOverlay.js';
+import { Scoreboard, SCOREBOARD_CSS } from './scoreboard.js';
+
+const style = document.createElement('style');
+style.textContent = SCOREBOARD_CSS;
+document.head.appendChild(style);
 
 // Birds call far above the musical register the jazz viewer was built for;
 // this is the frequency that sits at the middle of the stage.
@@ -139,11 +144,39 @@ let features = null;
 let networkDomains = [];    // the species voices; camera + graph hunt among them
 let axesOverlay = null;
 let axesOn = true;
+let laneLabels = [];
+let scoreboard = null;
+
+/** Floating name for one species' lane, in that species' own colour. */
+function speciesLabel(s) {
+  const size = 30, pad = 8;
+  const cv = document.createElement('canvas');
+  let ctx = cv.getContext('2d');
+  ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
+  cv.width = ctx.measureText(s.common_name).width + pad * 2;
+  cv.height = size + pad * 2;
+  ctx = cv.getContext('2d');
+  ctx.font = `600 ${size}px 'Segoe UI', sans-serif`;
+  ctx.fillStyle = s.color;
+  ctx.fillText(s.common_name, pad, size + pad / 2);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false,
+  }));
+  sprite.scale.set(cv.width * 0.2, cv.height * 0.2, 1);
+  sprite.userData.slug = s.slug;
+  return sprite;
+}
 
 function buildDomains(f) {
   for (const d of domains) d.dispose(scene);
+  for (const l of laneLabels) {
+    scene.remove(l);
+    l.material.map.dispose();
+    l.material.dispose();
+  }
   domains = [];
   networkDomains = [];
+  laneLabels = [];
 
   const sp = f.species.filter((s) => f.stems[s.slug]);
   // The loudest species leads: it gets the shooting-star head, the way the
@@ -151,8 +184,21 @@ function buildDomains(f) {
   // abundant, which is exactly who dominated the real soundscape.
   const leadSlug = sp.reduce((a, b) => ((a.share ?? 0) >= (b.share ?? 0) ? a : b), sp[0])?.slug;
 
-  for (const s of sp) {
+  // Lanes. Each species gets its own wedge of the bay so an audience can see
+  // how many different birds are present and watch one wedge go dark. A single
+  // species keeps the whole circle to itself and roams like the jazz voices.
+  const n = sp.length;
+  const LANE_GAP = 0.14;          // radians of empty space between streams
+
+  sp.forEach((s, i) => {
     const isLead = s.slug === leadSlug;
+    const span = (Math.PI * 2) / n;
+    const lane = n === 1 ? null : {
+      a0: i * span + LANE_GAP / 2,
+      a1: (i + 1) * span - LANE_GAP / 2,
+      inner: 42,                  // keeps the streams off the centre pole
+    };
+
     const d = new NetworkDomain(f.stems[s.slug], f.meta, {
       center: new THREE.Vector3(0, 30, 0),
       spread: isLead ? 130 : 115,
@@ -163,6 +209,7 @@ function buildDomains(f) {
       neonDecay: isLead ? 3.2 : 4.2,
       starHead: isLead,
       pitchRef: PITCH_REF,
+      lane,
       // Stems here are composed, not separated, so there is no bleed to gate
       // against - a species is silent exactly when it is not calling.
       threshold: 0.05,
@@ -173,7 +220,17 @@ function buildDomains(f) {
     d.isLead = isLead;
     domains.push(d);
     networkDomains.push(d);
-  }
+
+    // name the lane in the scene itself, in the species' colour, so the 3D
+    // stands on its own in a screenshot without the HTML scoreboard
+    if (lane) {
+      const mid = (lane.a0 + lane.a1) / 2;
+      const label = speciesLabel(s);
+      label.position.set(Math.cos(mid) * 168, 30, Math.sin(mid) * 168);
+      laneLabels.push(label);
+      scene.add(label);
+    }
+  });
 
   const years = f.meta.end_year - f.meta.start_year + 1;
   const total = new Array(years).fill(0);
@@ -198,6 +255,8 @@ function buildDomains(f) {
   axesOverlay.setVisible(axesOn);
   axesOverlay.addTo(scene);
 
+  scoreboard = new Scoreboard(document.getElementById('scoreboard'), f.species, f.meta);
+
   for (const d of domains) d.addTo(scene);
   drawRadar();
 }
@@ -208,25 +267,18 @@ el.axes.addEventListener('click', () => {
   axesOverlay?.setVisible(axesOn);
 });
 
-// -------------------------------------------------------------- roll call
-// Which colour is which species, how many are left this year, and a strike
-// through the ones that have stopped. This is the piece's scoreboard.
-function renderVoiceLegend(year) {
+// A lane whose species has gone stays in place but dims to a ghost of itself,
+// so the empty wedge is still legible as something that used to be occupied
+// rather than just absence.
+function updateLaneLabels(year) {
   if (!features) return;
-  el.voices.innerHTML = features.species.map((s) => {
-    const i = Math.max(0, Math.min(s.curve.length - 1, Math.round(year - features.meta.start_year)));
-    const n = s.curve[i] ?? 0;
-    const gone = n <= 0;
-    const lead = networkDomains.find((d) => d.stemKey === s.slug)?.isLead;
-    const name = gone
-      ? `<s style="color:#5b6670">${s.common_name}</s>`
-      : `${s.common_name}${lead ? ' ★' : ''}`;
-    const count = gone
-      ? `<span style="color:#5b6670">extirpated ${s.extirpated_year ?? ''}</span>`
-      : `<span style="color:#8a8f98">${Math.round(n)}</span>`;
-    const dot = gone ? '#2a343d' : s.color;
-    return `<span style="color:${dot}">●</span> ${name} &nbsp;${count}`;
-  }).join('<br/>');
+  const i = Math.round(year - features.meta.start_year);
+  for (const l of laneLabels) {
+    const s = features.species.find((x) => x.slug === l.userData.slug);
+    if (!s) continue;
+    const n = s.curve[Math.max(0, Math.min(s.curve.length - 1, i))] ?? 0;
+    l.material.opacity = n <= 0 ? 0.22 : 0.55 + 0.45 * Math.sqrt(n / (s.peak || 1));
+  }
 }
 
 let bannerTimer = null;
@@ -500,7 +552,8 @@ renderer.setAnimationLoop(() => {
     const m = features.meta;
     const year = m.start_year + (t / m.duration) * (m.end_year - m.start_year);
     el.year.textContent = Math.min(m.end_year, Math.round(year));
-    renderVoiceLegend(year);
+    scoreboard?.update(year);
+    updateLaneLabels(year);
     el.clock.textContent = `${Math.round(year)} · ${t.toFixed(1)}s / ${Math.round(m.duration)}s`;
 
     // call the extinctions as they land

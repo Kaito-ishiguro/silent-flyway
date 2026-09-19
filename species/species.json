@@ -1,31 +1,45 @@
 {
-  "_comment": "Population anchors for the Hong Kong / Deep Bay avifauna timeline. Each anchor carries a basis: 'documented' means the figure appears in a cited survey or report; 'estimated' means it is an interpolation or an informed guess used only to span a gap, and MUST be replaced before this is shown as fact. The viewer renders estimated segments with a dashed timeline so the distinction survives into the artwork.",
+  "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. Each anchor carries a 'basis' - 'documented' means the figure appears in a cited survey or report and the 'source' field names it; 'estimated' means it is a placeholder used only to span a gap and MUST NOT be presented as fact. The viewer draws estimated stretches dashed and says so on screen. See docs/data-research-prompt.md for how the real figures are being sourced.",
+
+  "_metrics": {
+    "_comment": "Abundance in Hong Kong is not recorded the same way for every bird, and pretending otherwise is the easiest way to lie with this piece. Waterbirds get counted in Deep Bay; passerines do not, and are known instead from passage counts or from atlas occupancy. Each species therefore declares which metric its numbers are, and the viewer scales and labels accordingly instead of putting a duck flock and a bunting passage count on one axis.",
+    "peak_winter_count": { "label": "peak winter count", "unit": "individuals", "comparable": true },
+    "mean_winter_count": { "label": "mean winter count", "unit": "individuals", "comparable": true },
+    "passage_count": { "label": "peak passage count", "unit": "individuals", "comparable": false },
+    "breeding_pairs": { "label": "breeding pairs", "unit": "pairs", "comparable": false },
+    "atlas_occupancy": { "label": "atlas occupancy", "unit": "% of 1km squares", "comparable": false },
+    "index": { "label": "modelled index", "unit": "index", "comparable": false }
+  },
+
   "timeline": {
     "start_year": 1960,
     "end_year": 2026,
     "seconds_per_decade": 18
   },
+
   "species": [
     {
-      "slug": "spoon-billed-sandpiper",
-      "common_name": "Spoon-billed Sandpiper",
-      "scientific_name": "Calidris pygmaea",
-      "color": "#ff9a3c",
-      "guild": "shorebird",
+      "slug": "yellow-breasted-bunting",
+      "common_name": "Yellow-breasted Bunting",
+      "scientific_name": "Emberiza aureola",
+      "color": "#f2c230",
+      "guild": "farmland passerine",
       "iucn": "Critically Endangered",
-      "habitat": "Intertidal mudflats, Inner Deep Bay / Mai Po",
+      "habitat": "Wet agriculture and paddy, Long Valley; reedbed and scrub on passage",
+      "metric": "passage_count",
       "extirpated_year": null,
       "threats": [
-        "Loss of Yellow Sea intertidal staging mudflats to reclamation",
-        "Invasive Spartina cordgrass choking remaining foraging flats",
-        "Illegal trapping and net bycatch on the Myanmar wintering grounds"
+        "Industrial-scale trapping on migration through mainland China",
+        "Loss of wet agriculture and paddy at Hong Kong stopover sites",
+        "Breeding-ground habitat loss across the Palearctic"
       ],
+      "_data_status": "PLACEHOLDER ANCHORS - awaiting sourced figures. Documented context so far: global population fell by an estimated 84-95% between 1980 and 2013 (Kamp et al. 2015, Conservation Biology), and IUCN uplisted the species Least Concern (2004) -> Vulnerable (2008) -> Endangered (2013) -> Critically Endangered (2017). Those are GLOBAL, not Hong Kong figures, and are not used as anchors here. Hong Kong needs peak autumn passage counts from HKBWS records and Long Valley monitoring.",
       "anchors": [
-        { "year": 1960, "count": 60, "basis": "estimated", "note": "PLACEHOLDER pre-collapse baseline - no HK count located for this era" },
-        { "year": 1990, "count": 50, "basis": "estimated", "note": "PLACEHOLDER - needs an HKBWS passage figure" },
-        { "year": 2006, "count": 34, "basis": "documented", "note": "spring passage count, Mai Po" },
-        { "year": 2023, "count": 16, "basis": "documented", "note": "January flock, Mai Po" },
-        { "year": 2026, "count": 2, "basis": "documented", "note": "typical recent annual sightings, 1-2 individuals" }
+        { "year": 1960, "count": 400, "basis": "estimated", "source": null, "note": "PLACEHOLDER pre-collapse baseline - no HK figure located" },
+        { "year": 1980, "count": 380, "basis": "estimated", "source": null, "note": "PLACEHOLDER - global collapse is dated from about here" },
+        { "year": 2000, "count": 150, "basis": "estimated", "source": null, "note": "PLACEHOLDER - needs HKBWS passage counts" },
+        { "year": 2013, "count": 40, "basis": "estimated", "source": null, "note": "PLACEHOLDER - end of the Kamp et al. global assessment window" },
+        { "year": 2026, "count": 62, "basis": "estimated", "source": null, "note": "PLACEHOLDER - recent autumn passage flocks at Long Valley reported around this size; needs a citation before it is treated as documented" }
       ]
     }
   ]

@@ -99,7 +99,7 @@ by choice.
 whine (encoder artifact, mic hiss, hum) that sits in every frame including the
 silences. Since nothing is filtered, it comes along &mdash; but because it only
 sounds while a call is playing, it thins out with the birds rather than
-droning under the ending. In the current sandpiper recording it is about five
+droning under the ending. In the current bunting recording it is about five
 times quieter than the calls, and its share of the timeline falls from ~79% in
 the 1960s to ~21% by the 2020s.
 
@@ -152,8 +152,31 @@ that stretch of rim **dashed** and the axes overlay says why, so a guess never
 passes for a count in the artwork itself.
 
 **Any anchor still marked `estimated` must be replaced with a sourced figure
-before this is shown as fact.** The Spoon-billed Sandpiper's pre-2006
-baselines are placeholders and are flagged as such.
+before this is shown as fact.** Every anchor currently in the file is a
+placeholder; `compose.py` prints a loud warning on every build listing exactly
+which ones. Sourcing is under way &mdash; see
+[`docs/data-research-prompt.md`](docs/data-research-prompt.md).
+
+### Metrics: not every bird is counted the same way
+
+Hong Kong does not measure all species with one instrument, and flattening that
+is the easiest way to lie with this piece. Waterbirds are counted in Deep Bay;
+passerines are not, and are known instead from passage counts or from atlas
+occupancy. So each species declares a `metric`:
+
+| metric | unit | additive? |
+| --- | --- | --- |
+| `peak_winter_count` | individuals | yes |
+| `mean_winter_count` | individuals | yes |
+| `passage_count` | individuals | no |
+| `breeding_pairs` | pairs | no |
+| `atlas_occupancy` | % of 1km squares | no |
+| `index` | index | no |
+
+The scoreboard prints each species' metric under its number, and the running
+total sums **only** the additive ones and says how many species that covers.
+A count of ducks and a percentage of occupied squares are both "numbers" and
+mean nothing added together.
 
 ## Design decisions worth defending
 
@@ -168,6 +191,13 @@ baselines are placeholders and are flagged as such.
 - **Decline rings scaled against the biggest species, not each against its own
   peak.** Per-species normalisation would draw a 34-bird wader and a
   6,000-strong duck flock at the same height and quietly erase the subject.
+- **One lane per species, rather than one shared space.** The jazz piece put
+  every instrument in a single circle so the voices tangle and argue, which was
+  right for a quartet. A dozen species doing that is an unreadable knot, and
+  the one thing this piece must communicate is *how many different birds are
+  still here*. Lanes trade the conversation for a headcount. A lane whose
+  species is gone stays in place, dimmed, so the empty wedge still reads as
+  something that used to be occupied.
 - **`pitchRef = 2000 Hz`.** The jazz viewer centres the stage on A3 (220 Hz).
   Birds call an octave and a half higher and would fly off the top of the
   space, so the flyway passes 2 kHz through the middle.

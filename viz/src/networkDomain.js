@@ -36,6 +36,16 @@ export class NetworkDomain {
                                        // call an octave and a half higher and
                                        // would fly straight off the top of the
                                        // stage, so the flyway passes ~2000 Hz.
+    lane = null,                       // {a0, a1, radius} - confine this voice
+                                       // to its own wedge of the bay.
+                                       // Jazz wanted every instrument roaming
+                                       // one shared space so the voices tangle
+                                       // and argue. A dozen species doing that
+                                       // is an unreadable knot: the audience
+                                       // cannot tell how many birds are left,
+                                       // which is the one thing this piece has
+                                       // to communicate. Lanes trade the
+                                       // conversation for a headcount.
   } = {}) {
     this.group = new THREE.Group();
 
@@ -78,6 +88,35 @@ export class NetworkDomain {
         const pull = (r - spread) * 0.04;
         pos.x -= (pos.x / r) * pull;
         pos.z -= (pos.z / r) * pull;
+      }
+
+      // Lane confinement, also a spring rather than a wall: the bird may lean
+      // out of its wedge and gets eased back, so the stream still looks flown
+      // rather than drawn along a rail.
+      if (lane) {
+        const ang = Math.atan2(pos.z, pos.x);
+        // shortest signed offset from the middle of the lane
+        const mid = (lane.a0 + lane.a1) / 2;
+        const half = (lane.a1 - lane.a0) / 2;
+        let d = ang - mid;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        if (Math.abs(d) > half) {
+          const target = mid + Math.sign(d) * half;
+          const k = 0.22;
+          const na = ang + (target - ang) * k;
+          const rr = Math.max(lane.inner ?? 0, r);
+          pos.x = Math.cos(na) * rr;
+          pos.z = Math.sin(na) * rr;
+          vel.x *= 0.7;
+          vel.z *= 0.7;
+        }
+        if (lane.inner && r < lane.inner) {
+          const push = (lane.inner - r) * 0.25;
+          const a2 = Math.atan2(pos.z, pos.x);
+          pos.x += Math.cos(a2) * push;
+          pos.z += Math.sin(a2) * push;
+        }
       }
 
       const band = Math.max(0, Math.min(BAND_STOPS.length - 1, bands[i]));

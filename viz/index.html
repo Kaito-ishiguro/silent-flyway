@@ -56,15 +56,9 @@
       z-index: 10; pointer-events: none;
       font-variant-numeric: tabular-nums;
     }
-    #voices {
-      position: fixed; bottom: 88px; left: 18px;
-      font-size: 11px; line-height: 1.8; color: var(--fg);
-      z-index: 10; pointer-events: none;
-      font-variant-numeric: tabular-nums;
-    }
     /* the year, big, where the song title used to be - it is the axis now */
     #year {
-      position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+      position: fixed; top: 44px; left: 50%; transform: translateX(-50%);
       font-size: clamp(30px, 5vw, 54px); font-weight: 200;
       letter-spacing: .12em; font-variant-numeric: tabular-nums;
       color: var(--fg); text-shadow: 0 0 30px rgba(120,190,230,.3);
@@ -139,8 +133,8 @@
   </div>
   <div id="year">1960</div>
   <div id="banner"></div>
+  <div id="scoreboard"></div>
   <div id="meta"></div>
-  <div id="voices"></div>
   <div id="clock"></div>
   <div id="radarBox">
     <canvas id="radar" width="240" height="230"></canvas>
