@@ -1,35 +1,54 @@
 {
   "_comment": "Population anchors for the Hong Kong avifauna timeline. NOTHING HERE IS SMOOTHED: anchors are the source of truth and everything between them is derived at build time. Species with no recording in calls/ are skipped by compose.py and wait here until one arrives.",
-
   "_basis": {
     "_comment": "How much weight each anchor carries. Only 'documented' is treated as established fact; the viewer draws every other kind as a dashed stretch of rim.",
     "documented": "The cited source was opened and the figure read back off it, or derived by stated arithmetic from a figure that was.",
     "secondary": "Taken from a compiled series that agrees with the verified figures around it, but whose individual year has not been checked against the primary report. Plausible and probably right - not yet proof.",
     "estimated": "A bound, a range, a period midpoint, or a placeholder. NOT a measurement, and must never be cited as one."
   },
-
   "_sources": {
     "avifauna": "Carey, G. J., M. R. Leven and C. C. Pang (2023), The Avifauna of Hong Kong, HKBWS - https://avifauna.hkbws.org.hk",
     "bfs_census": "International Black-faced Spoonbill Census, HKBWS - https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/",
     "_note": "Deep Bay waterbird counts after 1998 come from the AFCD/HKBWS Mai Po Inner Deep Bay Ramsar Site Waterbird Monitoring Programme. Summary figures published in the sources above are quoted with attribution; the raw programme data is HKSAR Government copyright and would need written AFCD permission to reuse."
   },
-
   "_metrics": {
     "_comment": "Abundance in Hong Kong is not recorded the same way for every bird, and pretending otherwise is the easiest way to lie with this piece. Waterbirds are counted in Deep Bay; passerines are not, and are known from passage counts; widespread residents are known only from atlas occupancy. Each species declares its metric and the viewer scales and labels within it, never across.",
-    "peak_winter_count": { "label": "peak winter count", "unit": "individuals", "comparable": true },
-    "mean_winter_count": { "label": "mean winter count", "unit": "individuals", "comparable": true },
-    "passage_count": { "label": "peak passage count", "unit": "individuals", "comparable": false },
-    "breeding_pairs": { "label": "breeding pairs", "unit": "pairs", "comparable": false },
-    "atlas_occupancy": { "label": "atlas occupancy", "unit": "% of 1km squares", "comparable": false },
-    "index": { "label": "modelled index", "unit": "index", "comparable": false }
+    "peak_winter_count": {
+      "label": "peak winter count",
+      "unit": "individuals",
+      "comparable": true
+    },
+    "mean_winter_count": {
+      "label": "mean winter count",
+      "unit": "individuals",
+      "comparable": true
+    },
+    "passage_count": {
+      "label": "peak passage count",
+      "unit": "individuals",
+      "comparable": false
+    },
+    "breeding_pairs": {
+      "label": "breeding pairs",
+      "unit": "pairs",
+      "comparable": false
+    },
+    "atlas_occupancy": {
+      "label": "atlas occupancy",
+      "unit": "% of 1km squares",
+      "comparable": false
+    },
+    "index": {
+      "label": "modelled index",
+      "unit": "index",
+      "comparable": false
+    }
   },
-
   "timeline": {
     "start_year": 1959,
     "end_year": 2026,
     "seconds_per_decade": 18
   },
-
   "species": [
     {
       "slug": "yellow-breasted-bunting",
@@ -48,13 +67,120 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. This is an autumn passage series - the highest single count recorded in each cited year, at varying sites - not a census of birds present. Global context, NOT used as anchors: an estimated 84-95% global decline 1980-2013 (Kamp et al. 2015), and IUCN uplisting LC (2004) -> VU (2008) -> EN (2013) -> CR (2017). No documented HK count located after 2014, so the curve holds flat from there rather than inventing a recent figure.",
       "anchors": [
-        { "year": 1959, "count": 3000, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "pre-roost gathering at Ping Shan, 19 Oct 1959 - highest count on record for Hong Kong" },
-        { "year": 1994, "count": 610, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "over Mong Tseng, 21 Oct 1994 - next largest on record" },
-        { "year": 2002, "count": 300, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "Mai Po, 20 Oct 2002 - highest count since 1999" },
-        { "year": 2014, "count": 120, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0460/056700", "note": "Long Valley, 10 Nov 2014 - next highest since 1999" }
+        {
+          "year": 1959,
+          "count": 3000,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0460/056700",
+          "note": "pre-roost gathering at Ping Shan, 19 Oct 1959 - highest count on record for Hong Kong"
+        },
+        {
+          "year": 1994,
+          "count": 610,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0460/056700",
+          "note": "over Mong Tseng, 21 Oct 1994 - next largest on record"
+        },
+        {
+          "year": 2001,
+          "count": 150,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0460/056700",
+          "note": "Long Valley, 10 Oct 2001; carried as the standing record in every Bird Report header from 2007 to 2013 as 'highest count since 1999, 150 on 10 October 2001'"
+        },
+        {
+          "year": 2002,
+          "count": 300,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0460/056700",
+          "note": "Mai Po, 20 Oct 2002. PROVENANCE WORTH KNOWING: the 2002 Bird Report records this as one observer's estimate and EXCLUDED it from that month's bird-day total, yet later reports and the avifauna account both adopt it as the standing record since 1999. Kept as documented because HKBWS itself treats it as the record, but it is an estimate, not a systematic count"
+        },
+        {
+          "year": 2003,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2004,
+          "count": 75,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2005,
+          "count": 12,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2006,
+          "count": 15,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2007,
+          "count": 25,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2008,
+          "count": 25,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2009,
+          "count": 23,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2010,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2011,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2012,
+          "count": 50,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2013,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        },
+        {
+          "year": 2014,
+          "count": 120,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "annual peak count, autumn passage"
+        }
       ]
     },
-
     {
       "slug": "eurasian-coot",
       "common_name": "Eurasian Coot",
@@ -72,14 +198,148 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. The steepest usable curve in the dataset: 3,245 down to 66.",
       "anchors": [
-        { "year": 1971, "count": 450, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "winter 1970/71, highest in that winter being 450 in January" },
-        { "year": 1972, "count": 2600, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "2,600 present in early February 1972" },
-        { "year": 1984, "count": 1200, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "SOURCE GIVES A RANGE, NOT A YEAR: 'from winter 1983/84 until 1996/97 the peak winter count was often 1,200 or more'. Pinning it to 1984 is a convention, not a count" },
-        { "year": 1992, "count": 3245, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "highest being 3,245 on 12 January 1992" },
-        { "year": 2012, "count": 66, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0060/007800", "note": "since winter 2011/12 the highest winter waterbird count is 66 - an upper bound across all later winters" }
+        {
+          "year": 1971,
+          "count": 450,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0060/007800",
+          "note": "winter 1970/71, highest in that winter being 450 in January"
+        },
+        {
+          "year": 1972,
+          "count": 2600,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0060/007800",
+          "note": "2,600 present in early February 1972"
+        },
+        {
+          "year": 1984,
+          "count": 1200,
+          "basis": "estimated",
+          "source": "https://avifauna.hkbws.org.hk/species/0060/007800",
+          "note": "SOURCE GIVES A RANGE, NOT A YEAR: 'from winter 1983/84 until 1996/97 the peak winter count was often 1,200 or more'. Pinning it to 1984 is a convention, not a count"
+        },
+        {
+          "year": 1992,
+          "count": 3245,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0060/007800",
+          "note": "highest being 3,245 on 12 January 1992"
+        },
+        {
+          "year": 1999,
+          "count": 679,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2000,
+          "count": 654,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 534,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 179,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 42,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 260,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 317,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 378,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 620,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 728,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 325,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 354,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 125,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 9,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 31,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 48,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        }
       ]
     },
-
     {
       "slug": "northern-pintail",
       "common_name": "Northern Pintail",
@@ -97,12 +357,134 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. CAUTION ON SPATIAL EXTENT: the 1997 figure is a whole-Deep-Bay count (including the Shenzhen side) and the 2000 figure is the Hong Kong side only. They are not strictly the same quantity; the source states both as separate records and this file keeps them separate rather than reconciling them.",
       "anchors": [
-        { "year": 1997, "count": 8651, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "highest WHOLE Deep Bay count, 8,651 on 15 February 1997" },
-        { "year": 2000, "count": 8086, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "highest count on the HK SIDE of Deep Bay, 8,086 on 15 January 2000 - different spatial extent to the 1997 figure" },
-        { "year": 2020, "count": 2000, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0020/002300", "note": "SOURCE GIVES AN UPPER BOUND: 'in the most recent three winter periods less than 2,000'. The true figure is below this" }
+        {
+          "year": 1997,
+          "count": 8651,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0020/002300",
+          "note": "highest WHOLE Deep Bay count, 8,651 on 15 February 1997"
+        },
+        {
+          "year": 1999,
+          "count": 5646,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2000,
+          "count": 8086,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 3435,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 2609,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 4381,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 2054,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 3332,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 1556,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 4647,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 2444,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 2010,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 3622,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 2586,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 2413,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 1748,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 1410,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2020,
+          "count": 2000,
+          "basis": "estimated",
+          "source": "https://avifauna.hkbws.org.hk/species/0020/002300",
+          "note": "SOURCE GIVES AN UPPER BOUND: 'in the most recent three winter periods less than 2,000'. The true figure is below this"
+        }
       ]
     },
-
     {
       "slug": "common-shelduck",
       "common_name": "Common Shelduck",
@@ -120,17 +502,155 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. NOTE ON THE END DATE: a widely-cited 1998-2017 trend study reports 'no record after 2013', but the HKBWS account records a later bird, one present 26 February to 18 March 2020. This file uses 2020 as the last confirmed record. The species ceased to be a regular wintering bird around 2013; the 2020 bird was a single individual. The boom-and-bust shape here is real, not an artefact: 115, then 4,011, then nothing.",
       "anchors": [
-        { "year": 1974, "count": 115, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "until the 1974-75 winter period the highest count was 115 - a maximum across all earlier years, not a single-year count" },
-        { "year": 1988, "count": 4011, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "peak of 4,011 birds on 17 January 1988, the highest on record in HK" },
-        { "year": 1992, "count": 387, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "sharp decline to 387 in winter 1991/92" },
-        { "year": 1997, "count": 2972, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "peak count of 2,972 in winter 1996/97" },
-        { "year": 2000, "count": 1300, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "the following three winter periods brought peak counts of approximately 1,300 birds - approximate as published" },
-        { "year": 2008, "count": 18, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "sharp decrease to 18 in winter 2007-08" },
-        { "year": 2013, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "2012/13, one present until 2 March" },
-        { "year": 2020, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0010/000800", "note": "one on 26 February 2020, last seen 18 March - the final confirmed record" }
+        {
+          "year": 1974,
+          "count": 115,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0010/000800",
+          "note": "until the 1974-75 winter period the highest count was 115 - a maximum across all earlier years, not a single-year count"
+        },
+        {
+          "year": 1988,
+          "count": 4011,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0010/000800",
+          "note": "peak of 4,011 birds on 17 January 1988, the highest on record in HK"
+        },
+        {
+          "year": 1992,
+          "count": 387,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0010/000800",
+          "note": "sharp decline to 387 in winter 1991/92"
+        },
+        {
+          "year": 1997,
+          "count": 2972,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0010/000800",
+          "note": "peak count of 2,972 in winter 1996/97"
+        },
+        {
+          "year": 1999,
+          "count": 1250,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2000,
+          "count": 1320,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 373,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 268,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 192,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 240,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 68,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 60,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 44,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 24,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 9,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 20,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 3,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 7,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 1,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 0,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2020,
+          "count": 1,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0010/000800",
+          "note": "one on 26 February 2020, last seen 18 March - the final confirmed record"
+        }
       ]
     },
-
     {
       "slug": "dalmatian-pelican",
       "common_name": "Dalmatian Pelican",
@@ -148,13 +668,36 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. The source names winter 1981-82 as 'a watershed'. ACOUSTIC CAVEAT: this species is essentially silent away from its breeding grounds and has never been recorded vocalising in Hong Kong, so a call recording would be representative of the species but not of the bird anyone here would have heard.",
       "anchors": [
-        { "year": 1960, "count": 85, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "peak count of 85 on 21 February 1960" },
-        { "year": 1982, "count": 38, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "SOURCE GIVES A RANGE ACROSS A DECADE: 'during the 1980s the five highest peak counts were much lower, in the range 26-38'. 38 is the upper bound, pinned to the 1981-82 watershed by convention" },
-        { "year": 2004, "count": 10, "basis": "estimated", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "SOURCE SAYS ONLY 'the last double-figure count occurred in winter 2004/05'. The true figure is 10 or more" },
-        { "year": 2010, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0170/023800", "note": "final record of one on 3 January 2010" }
+        {
+          "year": 1960,
+          "count": 85,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0170/023800",
+          "note": "peak count of 85 on 21 February 1960"
+        },
+        {
+          "year": 1982,
+          "count": 38,
+          "basis": "estimated",
+          "source": "https://avifauna.hkbws.org.hk/species/0170/023800",
+          "note": "SOURCE GIVES A RANGE ACROSS A DECADE: 'during the 1980s the five highest peak counts were much lower, in the range 26-38'. 38 is the upper bound, pinned to the 1981-82 watershed by convention"
+        },
+        {
+          "year": 2004,
+          "count": 10,
+          "basis": "estimated",
+          "source": "https://avifauna.hkbws.org.hk/species/0170/023800",
+          "note": "SOURCE SAYS ONLY 'the last double-figure count occurred in winter 2004/05'. The true figure is 10 or more"
+        },
+        {
+          "year": 2010,
+          "count": 1,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0170/023800",
+          "note": "final record of one on 3 January 2010"
+        }
       ]
     },
-
     {
       "slug": "black-headed-ibis",
       "common_name": "Black-headed Ibis",
@@ -172,12 +715,29 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. ACOUSTIC CAVEAT: largely silent away from breeding colonies. Only three documented counts, so the curve between them carries very little evidence.",
       "anchors": [
-        { "year": 1973, "count": 18, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "18 on 8 April 1973" },
-        { "year": 1974, "count": 25, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "25 on 6 January 1974 - the highest count on record" },
-        { "year": 1999, "count": 1, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0160/021600", "note": "the final record, 27 November 1999" }
+        {
+          "year": 1973,
+          "count": 18,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0160/021600",
+          "note": "18 on 8 April 1973"
+        },
+        {
+          "year": 1974,
+          "count": 25,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0160/021600",
+          "note": "25 on 6 January 1974 - the highest count on record"
+        },
+        {
+          "year": 1999,
+          "count": 1,
+          "basis": "documented",
+          "source": "https://avifauna.hkbws.org.hk/species/0160/021600",
+          "note": "the final record, 27 November 1999"
+        }
       ]
     },
-
     {
       "slug": "black-faced-spoonbill",
       "common_name": "Black-faced Spoonbill",
@@ -195,30 +755,155 @@
       ],
       "_data_status": "The densest series in this project: a near-annual run from the first International Synchronous Census in 1994 to 2026. THE POINT OF THIS SPECIES: globally it is a conservation success - 7,746 birds in 2026, a record - while Deep Bay peaked at 462 in 2010 and has hovered near 300-380 ever since. Its share of the world population fell from over a fifth in 2011 to 4.4% in 2026. It is the voice that survives to the end and still represents a loss. NOTE ON 411: an earlier anchor placed 411 in 2016 from the 2026 report's phrase 'the peak of 411 recorded ten years ago'. The compiled series puts 411 in 2011 and again in 2015, and 371 in 2016; the 2011 reading is corroborated independently, since the 2024 report states Deep Bay held 'over 20%' of the world population in 2011 and 411/1848 is 22.2%. The 2016=411 reading is withdrawn. ACOUSTIC CAVEAT: near-silent on the wintering grounds.",
       "anchors": [
-        { "year": 1994, "count": 86, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "first International Synchronous BFS Census; individual year not yet checked against the census report" },
-        { "year": 1996, "count": 124, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 1998, "count": 152, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2000, "count": 199, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2003, "count": 258, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2005, "count": 316, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2008, "count": 374, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2010, "count": 462, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "the all-time Deep Bay high; HKBWS describes an all-time high of 462 in 2010" },
-        { "year": 2011, "count": 411, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "cross-checked by ratio: the 2024 report says Deep Bay held 'over 20%' of the world population in 2011, and 411 of a 1,848 global total is 22.2%" },
-        { "year": 2013, "count": 351, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2015, "count": 411, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked; a candidate referent for the 2026 report's 'peak of 411 ten years ago'" },
-        { "year": 2016, "count": 371, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "independently given as 371 by a second research pass, which raises confidence, but neither cited the census report itself" },
-        { "year": 2017, "count": 375, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Hong Kong & Shenzhen (Deep Bay), 375, being 9.5% of the global total" },
-        { "year": 2018, "count": 350, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 350, 8.9% of the global total" },
-        { "year": 2019, "count": 383, "basis": "documented", "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en", "note": "Deep Bay 383, 8.6% of the global total" },
-        { "year": 2021, "count": 336, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2022, "count": 369, "basis": "secondary", "source": "compiled series, Kimi 2026", "note": "individual year not yet checked" },
-        { "year": 2023, "count": 299, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "derived by arithmetic from the 2024 report: 375 was 'a growth of 25.4%', giving 299. A compiled series states 299 independently" },
-        { "year": 2024, "count": 375, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en", "note": "Deep Bay 375 of a global 6,988, the second lowest share in history at 5.4%" },
-        { "year": 2025, "count": 328, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "derived by arithmetic from the 2026 report: 341 was 'an increase of 13 individuals' on the previous year" },
-        { "year": 2026, "count": 341, "basis": "documented", "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026", "note": "Deep Bay recorded 341 individuals, a 4.0% increase; share a historic low of 4.4%" }
+        {
+          "year": 1994,
+          "count": 86,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "first International Synchronous BFS Census; individual year not yet checked against the census report"
+        },
+        {
+          "year": 1996,
+          "count": 124,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 1998,
+          "count": 152,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2000,
+          "count": 199,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2003,
+          "count": 258,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2005,
+          "count": 316,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2008,
+          "count": 374,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2010,
+          "count": 462,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en",
+          "note": "the all-time Deep Bay high; HKBWS describes an all-time high of 462 in 2010"
+        },
+        {
+          "year": 2011,
+          "count": 411,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en",
+          "note": "cross-checked by ratio: the 2024 report says Deep Bay held 'over 20%' of the world population in 2011, and 411 of a 1,848 global total is 22.2%"
+        },
+        {
+          "year": 2013,
+          "count": 351,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2015,
+          "count": 411,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked; a candidate referent for the 2026 report's 'peak of 411 ten years ago'"
+        },
+        {
+          "year": 2016,
+          "count": 371,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "independently given as 371 by a second research pass, which raises confidence, but neither cited the census report itself"
+        },
+        {
+          "year": 2017,
+          "count": 375,
+          "basis": "documented",
+          "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en",
+          "note": "Hong Kong & Shenzhen (Deep Bay), 375, being 9.5% of the global total"
+        },
+        {
+          "year": 2018,
+          "count": 350,
+          "basis": "documented",
+          "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en",
+          "note": "Deep Bay 350, 8.9% of the global total"
+        },
+        {
+          "year": 2019,
+          "count": 383,
+          "basis": "documented",
+          "source": "https://www.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census2019en",
+          "note": "Deep Bay 383, 8.6% of the global total"
+        },
+        {
+          "year": 2021,
+          "count": 336,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2022,
+          "count": 369,
+          "basis": "secondary",
+          "source": "compiled series, Kimi 2026",
+          "note": "individual year not yet checked"
+        },
+        {
+          "year": 2023,
+          "count": 299,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en",
+          "note": "derived by arithmetic from the 2024 report: 375 was 'a growth of 25.4%', giving 299. A compiled series states 299 independently"
+        },
+        {
+          "year": 2024,
+          "count": 375,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-2024-en",
+          "note": "Deep Bay 375 of a global 6,988, the second lowest share in history at 5.4%"
+        },
+        {
+          "year": 2025,
+          "count": 328,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026",
+          "note": "derived by arithmetic from the 2026 report: 341 was 'an increase of 13 individuals' on the previous year"
+        },
+        {
+          "year": 2026,
+          "count": 341,
+          "basis": "documented",
+          "source": "https://cms.hkbws.org.hk/cms/en/hkbws/work/endangered-species/bfs-en/bfs-census-en-2026",
+          "note": "Deep Bay recorded 341 individuals, a 4.0% increase; share a historic low of 4.4%"
+        }
       ]
     },
-
     {
       "slug": "black-capped-kingfisher",
       "common_name": "Black-capped Kingfisher",
@@ -227,7 +912,7 @@
       "guild": "coastal resident",
       "iucn": "Vulnerable",
       "habitat": "Coastal wetland, gei wais, mangrove and tidal mudflat",
-      "metric": "mean_winter_count",
+      "metric": "peak_winter_count",
       "extirpated_year": null,
       "threats": [
         "Coastal habitat destruction across its range",
@@ -236,11 +921,127 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. Each anchor is a MEAN ACROSS SIX WINTERS, pinned to the midpoint of its period - not a single-year count. The same account also gives atlas occupancy falling from 2.4% (2001-05) to 0.2% (2016-19), which is a different metric and is not mixed in here.",
       "anchors": [
-        { "year": 2001, "count": 8, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028100", "note": "mean peak count across the six winters 1998/99 to 2003/04; pinned to the period midpoint" },
-        { "year": 2018, "count": 1.6, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028100", "note": "mean peak count across the six winters 2015/16 to 2020/21; pinned to the period midpoint" }
-      ]
+        {
+          "year": 2000,
+          "count": 12,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 8,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 17,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 18,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 11,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 10,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 13,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 13,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 10,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 9,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 5,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 5,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 3,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 2,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 4,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        }
+      ],
+      "_alternative_series": {
+        "metric": "mean_winter_count",
+        "label": "mean peak count across six winters",
+        "note": "Published by HKBWS for this species in a DIFFERENT unit from the series the piece plays. Kept for reference; never merged into the anchors, because it cannot be compared with a headcount.",
+        "points": [
+          {
+            "year": 2018,
+            "count": 1.6,
+            "basis": "documented",
+            "source": "https://avifauna.hkbws.org.hk/species/0200/028100",
+            "note": "mean peak count across the six winters 2015/16 to 2020/21; pinned to the period midpoint"
+          }
+        ]
+      }
     },
-
     {
       "slug": "white-throated-kingfisher",
       "common_name": "White-throated Kingfisher",
@@ -249,7 +1050,7 @@
       "guild": "lowland resident",
       "iucn": "Least Concern",
       "habitat": "Fishponds and channels in winter, inland shrubland and hillside streams when breeding",
-      "metric": "atlas_occupancy",
+      "metric": "peak_winter_count",
       "extirpated_year": null,
       "threats": [
         "Historical trapping for kingfisher-feather ornament",
@@ -258,9 +1059,133 @@
       ],
       "_data_status": "VERIFIED against the HKBWS avifauna account. THIS IS OCCUPANCY, NOT A COUNT: the percentage of 1km squares occupied, which cannot be converted into a number of birds. Anchors are pinned to the midpoint of each multi-year atlas block. BREEDING season series used here; the account separately gives a winter series falling 9.4% to 5.7%, which is not mixed in. NOTE: an earlier secondary summary circulated figures of 21.9% falling to 5.4% for this species; the primary account does not support those numbers. Best audio prospect of the thirteen - Xeno-canto holds recordings made in Hong Kong itself.",
       "anchors": [
-        { "year": 1994, "count": 7.3, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028300", "note": "breeding atlas 1993-96, 7.3% of 1km squares occupied; pinned to the period midpoint" },
-        { "year": 2017, "count": 3.0, "basis": "documented", "source": "https://avifauna.hkbws.org.hk/species/0200/028300", "note": "breeding atlas 2016-19, 3.0% of 1km squares occupied; pinned to the period midpoint" }
-      ]
+        {
+          "year": 2000,
+          "count": 46,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2001,
+          "count": 31,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2002,
+          "count": 44,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2003,
+          "count": 35,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2004,
+          "count": 39,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2005,
+          "count": 46,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2006,
+          "count": 36,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2007,
+          "count": 33,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2008,
+          "count": 43,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2009,
+          "count": 32,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2010,
+          "count": 24,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2011,
+          "count": 26,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2012,
+          "count": 22,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2013,
+          "count": 23,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        },
+        {
+          "year": 2014,
+          "count": 23,
+          "basis": "documented",
+          "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
+          "note": "Deep Bay waterbird count annual peak"
+        }
+      ],
+      "_alternative_series": {
+        "metric": "atlas_occupancy",
+        "label": "breeding atlas occupancy, % of 1km squares",
+        "note": "Published by HKBWS for this species in a DIFFERENT unit from the series the piece plays. Kept for reference; never merged into the anchors, because it cannot be compared with a headcount.",
+        "points": [
+          {
+            "year": 1994,
+            "count": 7.3,
+            "basis": "documented",
+            "source": "https://avifauna.hkbws.org.hk/species/0200/028300",
+            "note": "breeding atlas 1993-96, 7.3% of 1km squares occupied; pinned to the period midpoint"
+          },
+          {
+            "year": 2017,
+            "count": 3.0,
+            "basis": "documented",
+            "source": "https://avifauna.hkbws.org.hk/species/0200/028300",
+            "note": "breeding atlas 2016-19, 3.0% of 1km squares occupied; pinned to the period midpoint"
+          }
+        ]
+      }
     }
   ]
 }
