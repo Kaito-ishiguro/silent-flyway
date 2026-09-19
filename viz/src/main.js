@@ -63,6 +63,7 @@ const el = {
   banner: document.getElementById('banner'),
   score: document.getElementById('scoreBtn'),
   panels: document.getElementById('panelBtn'),
+  clear: document.getElementById('clearBtn'),
   compare: document.getElementById('compare'),
   compareBtns: document.getElementById('compareBtns'),
   compareCap: document.getElementById('compareCap'),
@@ -79,12 +80,30 @@ function setBare(on) {
   el.panels.title = on ? 'show the panels (P)' : 'hide the panels (P)';
 }
 el.panels.addEventListener('click', () => setBare(!bare));
+
+// ---- the clearing, on a switch. On, the landscape opens a corridor and the
+// sculpture is readable from any angle - which is the piece arguing its case.
+// Off, nothing is removed at all: the bay exactly as it stands, sound buried
+// somewhere inside a mangrove or a skyline depending on the year. Both are
+// worth seeing, and which one is the honest picture is a fair question to hand
+// to the person looking rather than answer for them.
+let clearing = true;
+function setClearing(on) {
+  clearing = on;
+  habitat?.setClearing(on);
+  el.clear.classList.toggle('active', on);
+  el.clear.title = on
+    ? 'let the landscape close back over the sound (C)'
+    : 'hold a view open through to the sound sculpture (C)';
+}
+el.clear.addEventListener('click', () => setClearing(!clearing));
+
 addEventListener('keydown', (e) => {
-  if (e.key === 'p' || e.key === 'P') {
-    if (e.target instanceof HTMLInputElement
-      || e.target instanceof HTMLSelectElement) return;
-    setBare(!bare);
-  }
+  if (e.target instanceof HTMLInputElement
+    || e.target instanceof HTMLSelectElement) return;
+  const k = e.key.toLowerCase();
+  if (k === 'p') setBare(!bare);
+  else if (k === 'c') setClearing(!clearing);
 });
 
 // The music bed and the extinction sting. Both need a real click before a
@@ -315,6 +334,7 @@ function buildDomains(f) {
   // whatever the forest has been turned into by the year you are hearing.
   habitat = new HabitatDomain(f.meta, f.species, { y: -126, fog: scene.fog.density });
   habitat.setPointPixelRatio(PIXEL_RATIO);
+  habitat.setClearing(clearing);
   domains.push(habitat);
 
   const prevCam = el.cam.value;

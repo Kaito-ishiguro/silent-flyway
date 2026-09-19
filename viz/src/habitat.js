@@ -452,7 +452,7 @@ const FOG_GLSL = /* glsl */ `
 const NEAR_GLSL = /* glsl */ `
   uniform float uNear;
   float nearFade() {
-    return smoothstep(60.0, 200.0, vDepth * uNear);
+    return mix(1.0, smoothstep(60.0, 200.0, vDepth), uNear);
   }
 `;
 
@@ -483,9 +483,18 @@ const CLEAR_GLSL = /* glsl */ `
   uniform vec3 uCam;
   uniform vec3 uBay;
   uniform float uBayR;
+  uniform float uClearMix;
   varying float vClear;
 
   float clearance(vec3 p) {
+    // Switched off, this returns 1 for everything and not one point is
+    // removed - the bay as it actually stands, mangrove and city and all,
+    // with the sound somewhere inside it. That view is worth having: the
+    // cleared one is the piece making its case, and the uncleared one is the
+    // case being made. An audience should be able to see both and decide
+    // which of them they think is the honest picture.
+    if (uClearMix < 0.001) return 1.0;
+
     float keepA = smoothstep(uBayR, uBayR * 1.38, distance(p, uBay));
 
     vec3 toBay = uBay - uCam;
@@ -507,7 +516,7 @@ const CLEAR_GLSL = /* glsl */ `
       float R = uBayR * (s / L);
       keepB = smoothstep(R * 0.66, R, d);
     }
-    return min(keepA, keepB);
+    return mix(1.0, min(keepA, keepB), uClearMix);
   }
 `;
 
@@ -531,6 +540,8 @@ export class HabitatDomain {
     this.lastT = null;
     this.lastWall = null;
     this.dissolve = 0;
+    this.clearMix = 1;
+    this.wantClear = 1;
 
     // ---- how much of the bay is gone, measured against its own best year so
     // far. Against the all-time peak instead, 1959 would open at 30% lost and
@@ -730,6 +741,7 @@ export class HabitatDomain {
         uCam: { value: new THREE.Vector3(0, 120, 640) },
         uBay: { value: new THREE.Vector3(0, 45, 0) },
         uBayR: { value: 235 },
+        uClearMix: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aCity;
@@ -862,6 +874,7 @@ export class HabitatDomain {
         uCam: { value: new THREE.Vector3(0, 120, 640) },
         uBay: { value: new THREE.Vector3(0, 45, 0) },
         uBayR: { value: 235 },
+        uClearMix: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aColor;
@@ -947,6 +960,7 @@ export class HabitatDomain {
         uCam: { value: new THREE.Vector3(0, 120, 640) },
         uBay: { value: new THREE.Vector3(0, 45, 0) },
         uBayR: { value: 235 },
+        uClearMix: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute float aOrder;
@@ -998,6 +1012,9 @@ export class HabitatDomain {
   setView(camPos) {
     for (const m of this._allMats()) m.uniforms.uCam.value.copy(camPos);
   }
+
+  /** Switch the clearing. Eased, because a hard cut looks like a glitch. */
+  setClearing(on) { this.wantClear = on ? 1 : 0; }
 
   setPointPixelRatio(r) {
     this.pointMat.uniforms.uPR.value = r;
@@ -1068,7 +1085,15 @@ export class HabitatDomain {
     this.lastWall = now;
     const wantD = this.sculpture ? 1 : 0;
     this.dissolve += (wantD - this.dissolve) * (1 - Math.pow(0.06, wdt));
-    for (const m of this._allMats()) m.uniforms.uDissolve.value = this.dissolve;
+    // The clearing opens and closes over about a second: slow enough to read
+    // as the landscape moving aside rather than as a layer being switched off,
+    // fast enough that nobody standing at the plinth thinks it is broken.
+    this.clearMix += (this.wantClear - this.clearMix) * (1 - Math.pow(0.02, wdt));
+    for (const m of this._allMats()) {
+      m.uniforms.uDissolve.value = this.dissolve;
+      m.uniforms.uClearMix.value = this.clearMix;
+      m.uniforms.uNear.value = this.clearMix;
+    }
     this.glowMat.uniforms.uCity.value = this.cityness * (1 - this.dissolve);
 
     // ---- traffic

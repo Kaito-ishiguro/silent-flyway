@@ -44,7 +44,7 @@
     }
     #camMode { max-width: 220px; }
     button:hover, select:hover { border-color: rgba(255,255,255,.45); }
-    #sculptBtn.active, #axesBtn.active, #scoreBtn.active {
+    #sculptBtn.active, #axesBtn.active, #scoreBtn.active, #clearBtn.active {
       border-color: var(--accent); color: var(--accent);
     }
     /* the embed is blocked or the track is gone - say so rather than
@@ -168,6 +168,7 @@
     <button id="axesBtn" class="active" title="show labeled axes explaining the 3D mapping">axes</button>
     <button id="scoreBtn" class="active" title="the music bed under the piece">&#9834; score</button>
     <button id="panelBtn" class="active" title="hide the panels and see the whole image (P)">panels</button>
+    <button id="clearBtn" class="active" title="hold a view open through to the sound sculpture (C)">clearing</button>
     <select id="camMode" title="camera style - lock onto one species">
       <option value="orbit">orbit camera</option>
     </select>
