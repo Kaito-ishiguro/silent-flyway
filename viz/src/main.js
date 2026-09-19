@@ -211,27 +211,36 @@ function buildDomains(f) {
     : null;
 
   const n = sp.length;
-  const LANE_GAP = 0.14;          // radians of empty space between streams
+
+  // ONE SHARED BAY. Lanes were a mistake: giving each species its own wedge
+  // parked every colour in a fixed patch of sky, which looked composed rather
+  // than observed - birds do not hold assigned seats. Every voice now roams
+  // the whole space and they cross each other freely, which is both what a
+  // real bay looks like and what the original jazz model did, where the point
+  // was always that the voices argue with each other.
+  //
+  // Identity is carried by colour, by the scoreboard and by the 3D labels,
+  // none of which need the bird to stay put.
+  const SHARED_BAY = true;
+  const LANE_GAP = 0.14;          // radians of empty space, only if lanes return
 
   sp.forEach((s, i) => {
     const isLead = s.slug === leadSlug;
     const span = (Math.PI * 2) / n;
-    const lane = n === 1 ? null : {
+    const lane = (SHARED_BAY || n === 1) ? null : {
       a0: i * span + LANE_GAP / 2,
       a1: (i + 1) * span - LANE_GAP / 2,
-      // Hold the streams out in a ring. Every walker starts at the origin, so
-      // with a small inner radius fifteen of them pile into the middle and the
-      // centre burns out - worst in sculpture mode, where all of it is lit at
-      // once. Pushed out, the bay reads as a ring of distinct lanes.
       inner: 78,
     };
 
-    // name the lane in the scene itself, in the species' colour, so the 3D
-    // stands on its own in a screenshot without the HTML scoreboard
-    if (lane) {
-      const mid = (lane.a0 + lane.a1) / 2;
+    // Name each species in the scene itself, so the 3D stands on its own in a
+    // screenshot without the HTML scoreboard. Now that voices share the bay
+    // these are a colour key around the rim rather than a marker of territory,
+    // so they sit well outside where the birds fly.
+    {
+      const a = (i / n) * Math.PI * 2;
       const label = speciesLabel(s);
-      label.position.set(Math.cos(mid) * 168, 30, Math.sin(mid) * 168);
+      label.position.set(Math.cos(a) * 300, 44 + Math.sin(i * 2.4) * 26, Math.sin(a) * 300);
       laneLabels.push(label);
       scene.add(label);
     }

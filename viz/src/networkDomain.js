@@ -22,6 +22,34 @@ export const BAND_STOPS = ['#2438d8', '#6d2bd8', '#c92e7a', '#e2643c', '#e8b04b'
 // Colours stay readable because each voice still spends most of its time home.
 const LANE_SLACK = 1.45;
 
+// Hard limits on where a walker may be and how fast it may move. These are a
+// backstop, not the design: the forces above should keep it in bounds on their
+// own. But a feedback loop that escapes once will draw a line to infinity, and
+// no amount of care in the force model is worth a streak across the finished
+// piece. Cheap insurance, applied every frame.
+const MAX_Y = 260;        // roughly two octaves either side of the stage
+const MAX_R = 420;        // just outside the year ring
+const MAX_SPEED = 26;     // units per frame
+
+function clampWalker(pos, vel) {
+  const sp = vel.length();
+  if (sp > MAX_SPEED) vel.multiplyScalar(MAX_SPEED / sp);
+  if (!Number.isFinite(pos.x) || !Number.isFinite(pos.y) || !Number.isFinite(pos.z)) {
+    pos.set(0, 0, 0);
+    vel.set(0, 0, 0);
+    return;
+  }
+  if (pos.y > MAX_Y) { pos.y = MAX_Y; vel.y = Math.min(vel.y, 0); }
+  if (pos.y < -MAX_Y) { pos.y = -MAX_Y; vel.y = Math.max(vel.y, 0); }
+  const r = Math.hypot(pos.x, pos.z);
+  if (r > MAX_R) {
+    pos.x *= MAX_R / r;
+    pos.z *= MAX_R / r;
+    vel.x *= 0.5;
+    vel.z *= 0.5;
+  }
+}
+
 export class NetworkDomain {
   constructor(stem, meta, {
     center = new THREE.Vector3(),
@@ -89,12 +117,14 @@ export class NetworkDomain {
       0.62 * Math.sin(t * W[1] + ph[k * 3 + 1]) +
       0.38 * Math.sin(t * W[2] + ph[k * 3 + 2]);
 
-    // start somewhere inside its own territory rather than at the origin, so
-    // fifteen walkers do not all launch from the same point
-    if (lane) {
-      const a = lane.a0 + rnd() * (lane.a1 - lane.a0);
-      const r0 = (lane.inner ?? 0) + 25 + rnd() * 45;
-      pos.set(Math.cos(a) * r0, 0, Math.sin(a) * r0);
+    // Start somewhere random in the bay rather than at the origin, so fifteen
+    // walkers do not all launch from the same point. With no lane, this is the
+    // only thing giving each voice a different starting place - after that
+    // they are free to go anywhere and cross each other.
+    {
+      const a = lane ? lane.a0 + rnd() * (lane.a1 - lane.a0) : rnd() * Math.PI * 2;
+      const r0 = (lane?.inner ?? 30) + rnd() * (spread * 0.55);
+      pos.set(Math.cos(a) * r0, (rnd() * 2 - 1) * 40, Math.sin(a) * r0);
     }
     let phase = rnd() * 6.28;
 
@@ -102,8 +132,18 @@ export class NetworkDomain {
       const amp = rms[i];
       const t = i / fps;
       if (amp < threshold) {
-        vel.multiplyScalar(0.94);          // silence: glide, don't snap home
+        // Silence: glide, don't snap home - but stay under control. Without a
+        // restoring force here, a long gap turns stored velocity into a long
+        // straight drift; the spring then has further to pull back, which
+        // builds more velocity, which makes the next gap's drift longer. That
+        // compounds, and on a gappy recording it threw the walker millions of
+        // units off and drew a streak across the sky. Species with sparse
+        // recordings hit it first - the Zitting Cisticola sounds in only 375
+        // of 7,237 frames.
+        vel.multiplyScalar(0.94);
+        vel.y += (0 - pos.y) * 0.02;       // ease back to level while resting
         pos.addScaledVector(vel, 0.5);
+        clampWalker(pos, vel);
         continue;
       }
       const hasPitch = f0 && f0[i] > 0 && (!voiced || voiced[i] > 0.4);
@@ -159,6 +199,7 @@ export class NetworkDomain {
 
       vel.multiplyScalar(0.9);
       pos.add(vel);
+      clampWalker(pos, vel);
 
       const band = Math.max(0, Math.min(BAND_STOPS.length - 1, bands[i]));
       emissions.push({

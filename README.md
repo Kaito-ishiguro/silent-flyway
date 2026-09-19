@@ -143,13 +143,27 @@ Look at `data/silent-flyway/check.png` before trusting the 3D: each species
 gets a strip showing its call level against the population curve it is meant
 to be following, with a red line at any local extinction.
 
+## The scoreboard
+
+Ranked by **how much has been lost**, worst first, and re-ranked live as the
+piece runs. Sorted by raw count it would simply put the commonest bird on top
+and never move; sorted by depletion, a species visibly climbs the board as it
+declines. The top living row burns red &mdash; the species in most trouble at
+that moment &mdash; and that marker moves: it is the Black-faced Spoonbill in
+1979 and the Eurasian Coot by 2025. Extirpated species settle to the bottom,
+struck through with their last-recorded year, so the board drains from the top
+and silts up at the bottom.
+
+The running total sums only the species whose metric is additive, and says how
+many that covers.
+
 ## Species without a recording
 
 A species with no file in `calls/` is still part of the piece. It keeps its
-lane, its colour, its decline ring, its row on the scoreboard and its mark on
-the year clock &mdash; it simply has no voice. Its lane label is drawn in
-outline rather than solid, and its scoreboard dot is hollow, so the scene says
-*present in the data, absent in sound* without needing a legend.
+colour, its decline ring, its row on the scoreboard and its mark on the year
+clock &mdash; it simply has no voice. Its rim label is drawn in outline rather
+than solid, and its scoreboard dot is hollow, so the scene says *present in the
+data, absent in sound* without needing a legend.
 
 That is not only a placeholder state. Several of these birds have no voice in
 Hong Kong at all: the Dalmatian Pelican and Black-headed Ibis were never
@@ -221,13 +235,23 @@ mean nothing added together.
 - **Decline rings scaled against the biggest species, not each against its own
   peak.** Per-species normalisation would draw a 34-bird wader and a
   6,000-strong duck flock at the same height and quietly erase the subject.
-- **One lane per species, rather than one shared space.** The jazz piece put
-  every instrument in a single circle so the voices tangle and argue, which was
-  right for a quartet. A dozen species doing that is an unreadable knot, and
-  the one thing this piece must communicate is *how many different birds are
-  still here*. Lanes trade the conversation for a headcount. A lane whose
-  species is gone stays in place, dimmed, so the empty wedge still reads as
-  something that used to be occupied.
+- **One shared bay, not a lane per species.** Lanes were tried and removed.
+  Giving each species its own wedge parked every colour in a fixed patch of
+  sky, which read as composed rather than observed &mdash; birds do not hold
+  assigned seats. Worse, a walker pinned against its wedge traces that wedge,
+  and a wedge traced exactly is a straight chord; fifteen of those drew a
+  literal polygon. Identity is carried by colour, by the scoreboard and by the
+  rim labels, none of which need the bird to stay put.
+- **Boundaries push, never place.** Every limit is a force on velocity
+  proportional to overshoot. Setting position directly is what made the
+  polygon: a walker that rides a limit exactly *becomes* that limit.
+- **Three oscillators per axis at incommensurable ratios.** One sine draws a
+  circle and two draw a lissajous; both read as machine-made. Three that never
+  come back into step read as an animal. Phases come from a per-species seeded
+  RNG, so the wander is organic and still identical every run.
+- **Hard clamps on position and speed.** A backstop, not the design. A feedback
+  loop that escapes once draws a line to infinity, and no care in the force
+  model is worth a streak across the finished piece.
 - **`pitchRef = 2000 Hz`.** The jazz viewer centres the stage on A3 (220 Hz).
   Birds call an octave and a half higher and would fly off the top of the
   space, so the flyway passes 2 kHz through the middle.

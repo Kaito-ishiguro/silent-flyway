@@ -80,6 +80,26 @@ export class Scoreboard {
       this.meta.end_year - this.meta.start_year,
       Math.round(year - this.meta.start_year)));
 
+    // Rank by HOW MUCH HAS BEEN LOST, worst first, and re-rank live as the
+    // piece runs. A list sorted by raw count would just put the commonest bird
+    // on top and never move; sorted by depletion, a species visibly climbs the
+    // board as it declines, the extirpated ones pile at the top, and the row
+    // in red is always whoever is in most trouble at that moment.
+    const rank = this.species.map((s, k) => {
+      const n = s.curve[i] ?? 0;
+      return { k, lost: 1 - n / (s.peak || 1), gone: n <= 0 };
+    });
+    // Living birds first, worst-hit at the top; the extirpated settle to the
+    // bottom. Red marks the living species in most trouble, so it keeps moving
+    // and keeps meaning something - pinned to an extinct row it would never
+    // change and would be reporting a death rather than a warning. The board
+    // drains from the top and silts up at the bottom as the piece runs.
+    rank.sort((a, b) => (a.gone - b.gone) || (b.lost - a.lost));
+    rank.forEach((r, order) => {
+      this.rows[r.k].el.style.order = String(order);
+      this.rows[r.k].el.classList.toggle('urgent', order === 0 && !r.gone);
+    });
+
     let total = 0;
     this.species.forEach((s, k) => {
       const n = s.curve[i] ?? 0;
@@ -133,6 +153,31 @@ export const SCOREBOARD_CSS = `
     font-size: 10px; letter-spacing: .26em; text-transform: uppercase;
     color: #6f7885; margin-bottom: 10px;
   }
+  /* ordered by loss, so rows move; flex lets CSS order do it without
+     touching the DOM every frame */
+  .sb-rows { display: flex; flex-direction: column; }
+  .sb-row { transition: order 0s; }
+
+  /* the species in most trouble right now */
+  .sb-row.urgent .sb-name {
+    color: #ff5a4d; font-weight: 600; letter-spacing: .04em;
+  }
+  .sb-row.urgent .sb-num { color: #ff7a6e; }
+  .sb-row.urgent .sb-metric { color: #b8564c; }
+  .sb-row.urgent .sb-fill { background: #ff5a4d !important; }
+  .sb-row.urgent .sb-dot {
+    background: #ff5a4d !important;
+    box-shadow: 0 0 12px #ff5a4d !important;
+    animation: sb-pulse 1.9s ease-in-out infinite;
+  }
+  @keyframes sb-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+  }
+  /* an extirpated row is beyond urgent - it is over, so it does not pulse */
+  .sb-row.urgent.gone .sb-name { color: #8c3d36; font-weight: 400; }
+  .sb-row.urgent.gone .sb-num { color: #8c3d36; }
+  .sb-row.urgent.gone .sb-dot { animation: none; background: #3a2422 !important; box-shadow: none !important; }
   .sb-row {
     display: grid;
     grid-template-columns: 11px minmax(0, 1fr) auto;
