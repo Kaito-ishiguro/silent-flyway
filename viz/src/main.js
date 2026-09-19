@@ -99,7 +99,9 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x050608, 0.0009);
 
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 5000);
-camera.position.set(0, 90, 480);
+// Far enough out to see the mangrove close over the bay and the towers
+// arrive at its edge. Closer than this and the architecture is all you get.
+camera.position.set(0, 120, 640);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -347,9 +349,11 @@ function extinction(s) {
   extinction.yearTimer = setTimeout(() => el.year.classList.remove('gone'), 3400);
 
   sting.fire();
-  ambience.duck();                   // the bed gets out of the shot's way
+  ambience.duck();                   // the bed gets out of the bell's way
   habitat?.strike();                 // and the city takes the ground for good
-  shake = 1;
+  // a shudder that settles, not a hit. The bell does not spike and neither
+  // should the frame.
+  shake = 0.5;
 }
 
 // ------------------------------------------------------------- radar chart
@@ -638,7 +642,7 @@ renderer.setAnimationLoop(() => {
   // has been placed, so it behaves the same in orbit and in follow - both
   // recompute position from scratch every frame, so nothing accumulates.
   if (shake > 0.002) {
-    const k = shake * shake * 9;
+    const k = shake * shake * 7;
     camera.position.x += (Math.random() * 2 - 1) * k;
     camera.position.y += (Math.random() * 2 - 1) * k;
     camera.position.z += (Math.random() * 2 - 1) * k;
