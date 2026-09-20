@@ -32,13 +32,19 @@ import { NetworkDomain } from './networkDomain.js';
 import { YearRingDomain } from './yearRing.js';
 import { YearPulseDomain } from './yearPulse.js';
 import { HabitatDomain } from './habitat.js';
+// Bundled as a module asset, not put in publicDir: publicDir here is ../data,
+// which is generated output and gitignored, so anything left in it is both
+// wiped by the next compose.py run and missing from a fresh clone.
+import archiveUrl from './assets/archive-hk.mp4';
 import { AxesOverlay } from './axesOverlay.js';
+import { HandControl, PHI_MIN, PHI_MAX } from './handControl.js';
 import { Scoreboard, SCOREBOARD_CSS } from './scoreboard.js';
+import { SpeciesCard, SPECIES_CARD_CSS } from './speciesCard.js';
 import { Ambience } from './ambience.js';
 import { ExtinctionSting } from './extinctionSting.js';
 
 const style = document.createElement('style');
-style.textContent = SCOREBOARD_CSS;
+style.textContent = SCOREBOARD_CSS + SPECIES_CARD_CSS;
 document.head.appendChild(style);
 
 // Birds call far above the musical register the jazz viewer was built for;
@@ -64,6 +70,11 @@ const el = {
   score: document.getElementById('scoreBtn'),
   panels: document.getElementById('panelBtn'),
   clear: document.getElementById('clearBtn'),
+  archive: document.getElementById('archiveBtn'),
+  hands: document.getElementById('handsBtn'),
+  handCam: document.getElementById('handCam'),
+  handMsg: document.getElementById('handMsg'),
+  backdrop: document.getElementById('backdrop'),
   compare: document.getElementById('compare'),
   compareBtns: document.getElementById('compareBtns'),
   compareCap: document.getElementById('compareCap'),
@@ -98,12 +109,158 @@ function setClearing(on) {
 }
 el.clear.addEventListener('click', () => setClearing(!clearing));
 
+// ---- the archive backdrop, on a switch. Two modes, and the piece is a
+// different argument in each. Against the dark, the bay is a measurement: a
+// sound, a count, a wetland, nothing else in the frame to argue with. Against
+// the footage, it is a claim with the evidence behind it - the same harbour,
+// filmed by the city while it was doing this, running underneath the thing it
+// cost. Neither is decoration for the other, so neither is the default state
+// with the other bolted on: it is a switch, like the clearing, and the person
+// looking decides which version they want to have seen.
+//
+// The clip is muted and loops on its own clock. Tying it to the timeline was
+// tempting and wrong - the footage is not evidence of any particular year in
+// the data, and cutting it to the seek bar would imply it was.
+let archive = false;
+let archiveRestore = null;
+function setArchive(on) {
+  archive = on;
+  document.body.classList.toggle('archive', on);
+  el.archive.classList.toggle('active', on);
+  el.archive.title = on
+    ? 'put the bay back against the dark (V)'
+    : 'run the archive footage behind the bay (V)';
+  // The landscape goes with it. Two cities in one frame - one filmed, one
+  // drawn from the bay's own numbers - make the same point twice, and the
+  // drawn one loses that argument to actual photography of the harbour.
+  habitat?.setHidden(on);
+
+  // And so do the instruments. This mode is the piece at its least explained:
+  // footage, a trace, a year. Anything that measures or labels it belongs to
+  // the other mode, where the bay is a measurement and the read-outs are what
+  // it is being measured against. What the audience had switched on before is
+  // remembered and handed back on the way out, so the mode is something they
+  // can look into and leave rather than a thing that rearranges their view.
+  if (on) {
+    archiveRestore = { bare, axes: axesOn };
+    setBare(true);
+    setAxes(false);
+  } else if (archiveRestore) {
+    setBare(archiveRestore.bare);
+    setAxes(archiveRestore.axes);
+    archiveRestore = null;
+  }
+  // Nothing decodes while the mode is off: an exhibition machine should not
+  // be spending a core on a video nobody has asked to see. And entering the
+  // mode does not start the clip - the timeline does that, or nothing does.
+  if (on) {
+    if (!el.backdrop.src) el.backdrop.src = archiveUrl;
+    syncBackdrop({ seek: true });
+  } else {
+    el.backdrop.pause();
+  }
+}
+el.archive.addEventListener('click', () => setArchive(!archive));
+
+// ---- steering the bay by hand.
+//
+// Off until asked, and it asks for the camera at that moment rather than on
+// load: a piece that grabs the webcam the second it opens has decided
+// something on the audience's behalf that is not its to decide.
+//
+// The mapping lives in handControl.js. What happens here is only the part
+// that has to know about this scene: turning a radius and two rotation rates
+// into a camera position, and getting out of the way the instant the hand
+// leaves. Nothing is disabled while it runs - mouse, trackpad and the
+// existing auto-orbit all still work, and the moment the hand is gone they
+// are exactly where they were.
+let handControl = null;
+let handsOn = false;
+let handAutoRotate = null;   // what autoRotate was before a hand took over
+
+function handStatus({ state, detail }) {
+  const msg = {
+    starting: '<b>waking the camera</b>',
+    searching: '<b>show a hand</b><br>pinch wide to come in · move to turn',
+    live: '<b>tracking</b><br>pinch wide to come in · move to turn',
+    denied: '<b>no camera</b><br>' + (detail || ''),
+    failed: '<b>could not start</b><br>' + (detail || ''),
+    off: '',
+  }[state] ?? '';
+  el.handMsg.innerHTML = msg;
+  el.handMsg.classList.toggle('live', state === 'live');
+}
+
+async function setHands(on) {
+  if (on === handsOn) return;
+  if (on) {
+    handControl ??= new HandControl(el.handCam, handStatus);
+    handsOn = true;
+    document.body.classList.add('hands');
+    el.hands.classList.add('active');
+    try {
+      await handControl.start();
+    } catch {
+      // start() has already reported why through handStatus; leave the panel
+      // up with the reason on it rather than silently flipping back.
+      handsOn = false;
+      el.hands.classList.remove('active');
+      return;
+    }
+  } else {
+    handsOn = false;
+    document.body.classList.remove('hands');
+    el.hands.classList.remove('active');
+    handControl?.stop();
+    releaseHands();
+  }
+}
+el.hands.addEventListener('click', () => setHands(!handsOn));
+
+function releaseHands() {
+  if (handAutoRotate !== null) {
+    controls.autoRotate = handAutoRotate;
+    handAutoRotate = null;
+  }
+}
+
+const _sph = new THREE.Spherical();
+const _off = new THREE.Vector3();
+let handLive = false;
+
+function applyHandControl(dt) {
+  if (!handsOn || !handControl) return;
+  const h = handControl.read(dt);
+  if (!h) {
+    if (handLive) { handLive = false; handStatus({ state: 'searching' }); }
+    releaseHands();
+    return;
+  }
+  if (!handLive) { handLive = true; handStatus({ state: 'live' }); }
+  // The auto-orbit is remembered, not discarded: a hand borrows the camera
+  // and gives it back, the same way a mouse drag does.
+  if (handAutoRotate === null) {
+    handAutoRotate = controls.autoRotate;
+    controls.autoRotate = false;
+  }
+
+  _off.copy(camera.position).sub(controls.target);
+  _sph.setFromVector3(_off);
+  _sph.theta += h.yawRate * dt;
+  _sph.phi = Math.min(PHI_MAX, Math.max(PHI_MIN, _sph.phi + h.pitchRate * dt));
+  _sph.radius = h.radius;
+  camera.position.copy(controls.target).add(_off.setFromSpherical(_sph));
+  camera.lookAt(controls.target);
+}
+
 addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement
     || e.target instanceof HTMLSelectElement) return;
   const k = e.key.toLowerCase();
   if (k === 'p') setBare(!bare);
   else if (k === 'c') setClearing(!clearing);
+  else if (k === 'v') setArchive(!archive);
+  else if (k === 'h') setHands(!handsOn);
 });
 
 // The music bed and the extinction sting. Both need a real click before a
@@ -180,6 +337,7 @@ window.__flyway = {
   get habitat() { return habitat; },
   get ambience() { return ambience; },
   get sting() { return sting; },
+  get handControl() { return handControl; },
   get domains() { return domains; },
   get f() { return features; },
   rebuild: () => buildDomains(features),
@@ -208,6 +366,35 @@ audio.addEventListener('pause', () => {
   el.play.innerHTML = '&#9654; play';
   ambience.pause();
 });
+
+// ---- the backdrop runs on the piece's clock, not its own.
+//
+// Left to itself the footage carried on rolling while the timeline sat
+// stopped, which quietly said the two were unrelated - a video wallpaper
+// behind a data view. They are the same sixty-six years. So the clip starts,
+// stops and scrubs with the audio: pause the piece and the harbour holds
+// still with it, drag the seek bar and the footage jumps to where you landed.
+//
+// It is a 10s loop against a 121s timeline, so the mapping is the audio clock
+// folded into the clip's length rather than stretched across it. Stretched,
+// every shot would crawl at a twelfth of speed and read as a still.
+function syncBackdrop({ seek = false } = {}) {
+  const v = el.backdrop;
+  if (!archive || !v.duration) return;
+  if (seek) {
+    const want = (audio.currentTime || 0) % v.duration;
+    // Only fight the element when it has actually drifted. Writing
+    // currentTime every frame stalls decoding and the picture judders.
+    if (Math.abs(v.currentTime - want) > 0.34) v.currentTime = want;
+  }
+  if (playing && v.paused) v.play().catch(() => {});
+  else if (!playing && !v.paused) v.pause();
+}
+audio.addEventListener('play', () => syncBackdrop({ seek: true }));
+audio.addEventListener('pause', () => syncBackdrop());
+audio.addEventListener('seeked', () => syncBackdrop({ seek: true }));
+// The first sync usually lands before the file has a duration to fold into.
+el.backdrop.addEventListener('loadedmetadata', () => syncBackdrop({ seek: true }));
 audio.addEventListener('ended', () => {
   setSculpture(true);
   banner('Silent Flyway', 'everything this bay used to hear');
@@ -225,6 +412,7 @@ function setSculpture(on) {
 }
 el.sculpt.addEventListener('click', () => setSculpture(!sculpture));
 
+let lastBackdropCheck = -1;
 let scrubbing = false;
 el.seek.addEventListener('input', () => {
   scrubbing = true;
@@ -239,6 +427,7 @@ let networkDomains = [];    // the species voices; camera + graph hunt among the
 let axesOverlay = null;
 let axesOn = true;
 let scoreboard = null;
+let speciesCard = null;
 let habitat = null;
 
 // Species names used to float in the scene as big coloured sprites around the
@@ -335,6 +524,7 @@ function buildDomains(f) {
   habitat = new HabitatDomain(f.meta, f.species, { y: -126, fog: scene.fog.density });
   habitat.setPointPixelRatio(PIXEL_RATIO);
   habitat.setClearing(clearing);
+  habitat.setHidden(archive);   // survives a rebuild with the mode still on
   domains.push(habitat);
 
   const prevCam = el.cam.value;
@@ -351,16 +541,22 @@ function buildDomains(f) {
   axesOverlay.addTo(scene);
 
   scoreboard = new Scoreboard(document.getElementById('scoreboard'), f.species, f.meta);
+  // The panels-off counterpart: same species, same figures, one at a time and
+  // with a face on it. Built here rather than at startup so it is rebuilt
+  // alongside the scoreboard whenever the feature set changes.
+  speciesCard = new SpeciesCard(
+    document.getElementById('speciesCard'), f.species, f.meta);
 
   for (const d of domains) d.addTo(scene);
   drawRadar();
 }
 
-el.axes.addEventListener('click', () => {
-  axesOn = !axesOn;
-  el.axes.classList.toggle('active', axesOn);
-  axesOverlay?.setVisible(axesOn);
-});
+function setAxes(on) {
+  axesOn = on;
+  el.axes.classList.toggle('active', on);
+  axesOverlay?.setVisible(on);
+}
+el.axes.addEventListener('click', () => setAxes(!axesOn));
 
 let bannerTimer = null;
 function banner(title, sub) {
@@ -743,8 +939,21 @@ renderer.setAnimationLoop(() => {
   const t = audio.currentTime || 0;
   for (const d of domains) d.update(t, playing);
   if (!scrubbing) el.seek.value = t;
+  // A 10s loop inside a 121s timeline crosses its own boundary a dozen times
+  // a run, and the two clocks are not the same clock, so they walk apart.
+  // Checked once a second against a third-of-a-second tolerance: far below
+  // what anyone can see, far above what makes the decoder stutter.
+  if (archive && playing && t - lastBackdropCheck > 1) {
+    lastBackdropCheck = t;
+    syncBackdrop({ seek: true });
+  }
   if (el.cam.value.startsWith('follow:')) updateFollowCamera(dt, t);
-  else controls.update();
+  else {
+    // Before controls.update(), which re-reads the camera each frame and so
+    // picks this up as if it had done the move itself.
+    applyHandControl(dt);
+    controls.update();
+  }
   // After the camera is final for this frame, so the clearing is cut against
   // where the viewer actually ends up rather than where they were last frame.
   habitat?.setView(camera.position);
@@ -755,6 +964,9 @@ renderer.setAnimationLoop(() => {
     const year = m.start_year + (t / m.duration) * (m.end_year - m.start_year);
     el.year.textContent = Math.min(m.end_year, Math.round(year));
     scoreboard?.update(year);
+    // Only does work while one of its buttons is being pointed at; the year
+    // is what it needs, so an open card keeps counting with the piece.
+    speciesCard?.update(t, year);
     applyPressure();
     el.clock.textContent = `${Math.round(year)} · ${t.toFixed(1)}s / ${Math.round(m.duration)}s`;
 

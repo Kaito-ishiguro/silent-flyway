@@ -179,6 +179,32 @@
           "source": "Hong Kong Bird Report, HKBWS - 'Peak counts by year' tables, cross-checked across overlapping report windows",
           "note": "annual peak count, autumn passage"
         }
+      ],
+      "iucn_history": [
+        {
+          "year": 2004,
+          "status": "Least Concern",
+          "scope": "global",
+          "source": "IUCN Red List assessment years, as recorded in this entry's _data_status. Global categories, not a Hong Kong status."
+        },
+        {
+          "year": 2008,
+          "status": "Vulnerable",
+          "scope": "global",
+          "source": "IUCN Red List assessment years, as recorded in this entry's _data_status. Global categories, not a Hong Kong status."
+        },
+        {
+          "year": 2013,
+          "status": "Endangered",
+          "scope": "global",
+          "source": "IUCN Red List assessment years, as recorded in this entry's _data_status. Global categories, not a Hong Kong status."
+        },
+        {
+          "year": 2017,
+          "status": "Critically Endangered",
+          "scope": "global",
+          "source": "IUCN Red List assessment years, as recorded in this entry's _data_status. Global categories, not a Hong Kong status."
+        }
       ]
     },
     {

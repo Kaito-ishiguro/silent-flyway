@@ -9,6 +9,13 @@ calls/*.mp3
 calls/*.m4a
 calls/*.webm
 
+# --- species photographs -----------------------------------------------
+# Same story as calls/: the images come from photographers and stock sources
+# and are not ours to redistribute. The folder's README says how to refill it.
+species/photos/*
+!species/photos/README.md
+!species/photos/CREDITS.json
+
 # --- generated output --------------------------------------------------
 # data/ is entirely rebuilt by `python analysis/compose.py --plot`, and the
 # mixdown is a 20MB wav that also contains the third-party audio above.

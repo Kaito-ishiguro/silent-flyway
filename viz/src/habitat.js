@@ -182,8 +182,13 @@ function mangrove(rng, h) {
     // rather than in another level of branching.
     const tip = depth >= 4 || len < GRID * 1.6;
     if (depth >= 3) {
-      const n = tip ? 12 + Math.floor(rng() * 14) : 5 + Math.floor(rng() * 6);
-      const rad = GRID * (tip ? 1.5 + rng() * 1.8 : 1.1 + rng() * 0.9);
+      // Thinned hard. The crown used to be built at a density that read as a
+      // solid green volume from outside and as a snowstorm from anywhere the
+      // sculpture was also in frame - and the sculpture is in frame from every
+      // angle the piece is ever looked at. A tighter, sparser cluster still
+      // reads as leaf mass on the branch, and stops reading as weather.
+      const n = tip ? 4 + Math.floor(rng() * 4) : 1 + Math.floor(rng() * 2);
+      const rad = GRID * (tip ? 1.0 + rng() * 1.1 : 0.8 + rng() * 0.6);
       for (let i = 0; i < n; i++) {
         pt.add(
           b.x + (rng() - 0.5) * 2 * rad,
@@ -263,7 +268,7 @@ function understory(rng, count, rInner, rOuter, density) {
     if (rng() > density(r)) continue;
 
     // pneumatophores: the field of pegs
-    const n = 3 + Math.floor(rng() * 6);
+    const n = 2 + Math.floor(rng() * 3);
     for (let k = 0; k < n; k++) {
       const ox = cx + (rng() - 0.5) * 46;
       const oz = cz + (rng() - 0.5) * 46;
@@ -532,6 +537,7 @@ export class HabitatDomain {
     this.duration = meta.duration;
     this.years = meta.end_year - meta.start_year + 1;
     this.sculpture = false;
+    this.hidden = false;
 
     this.push = 0;
     this.kick = 0;
@@ -599,8 +605,8 @@ export class HabitatDomain {
 
     // The flat, all the way in under the birds. Thinned near the year clock so
     // the calendar and its extinction marks stay readable through it.
-    for (const c of understory(rng, 260, 30, 950,
-      (r) => (r < 210 ? 0.6 : r < 290 ? 0.8 : 1))) {
+    for (const c of understory(rng, 130, 30, 950,
+      (r) => (r < 210 ? 0.45 : r < 290 ? 0.7 : 1))) {
       wild.push(c);
     }
 
@@ -763,12 +769,16 @@ export class HabitatDomain {
           float span = 0.16 + aSeed * 0.26;
           float m = smoothstep(aOrder, aOrder + span, uCity);
           vec3 p = mix(position, aCity, m);
-          // a high, wide arc: these are travelling right across the bay now,
-          // so they have to leave the ground to do it
+          // An arc, but a low one. The high wide version carried material
+          // right across the middle of the sky, which is exactly where the
+          // sculpture is: the transfer was legible and the thing it was
+          // supposed to be an argument about was not. Kept low, it still
+          // reads as material leaving the ground and being spent elsewhere,
+          // and it travels under the flock rather than through it.
           float arc = sin(m * 3.14159265);
-          p.y += arc * (46.0 + aSeed * 90.0);
-          p.x += arc * (aSeed - 0.5) * 120.0;
-          p.z += arc * (fract(aSeed * 7.13) - 0.5) * 120.0;
+          p.y += arc * (18.0 + aSeed * 34.0);
+          p.x += arc * (aSeed - 0.5) * 52.0;
+          p.z += arc * (fract(aSeed * 7.13) - 0.5) * 52.0;
           vColor = mix(aColA, aColB, m);
           vFlight = arc;
           vClear = clearance(p);
@@ -793,8 +803,8 @@ export class HabitatDomain {
           vec2 q = abs(gl_PointCoord - 0.5);
           float d = max(q.x, q.y);
           float a = smoothstep(0.5, 0.33, d);
-          float b = (0.56 + vFlight * 1.5) * (1.0 + 0.3 * uSculpture)
-            * mix(1.0, 0.68, uCity);
+          float b = (0.40 + vFlight * 0.85) * (1.0 + 0.3 * uSculpture)
+            * mix(1.0, 0.62, uCity);
           gl_FragColor = vec4(vColor * b,
             a * fogFade() * nearFade() * vClear * (1.0 - uDissolve));
         }
@@ -1043,6 +1053,23 @@ export class HabitatDomain {
     this.pointMat.uniforms.uSculpture.value = on ? 1 : 0;
   }
 
+  /**
+   * Take the whole landscape out - mangrove, towers, roads, traffic, skyglow.
+   *
+   * This is what the archive mode is for. With the footage running behind the
+   * bay there are two cities in the frame, one filmed and one drawn, and they
+   * are making the same point twice over each other. The drawn one is the
+   * weaker of the two: it is an argument built out of the bay's own numbers,
+   * and next to actual photography of the harbour it just reads as clutter in
+   * front of the picture. So in that mode the piece keeps the footage and the
+   * sound and drops everything it was using to stand in for the footage.
+   *
+   * Routed through the same dissolve the sculpture view uses rather than
+   * flipping group.visible: every material already fades on uDissolve, so the
+   * landscape leaves over about a second instead of vanishing between frames.
+   */
+  setHidden(on) { this.hidden = on; }
+
   update(t) {
     const u = Math.max(0, Math.min(1, t / this.duration));
     const i = Math.min(this.years - 1, Math.max(0, Math.floor(u * this.years)));
@@ -1083,7 +1110,7 @@ export class HabitatDomain {
     const wdt = this.lastWall == null ? 0
       : Math.min(0.2, (now - this.lastWall) / 1000);
     this.lastWall = now;
-    const wantD = this.sculpture ? 1 : 0;
+    const wantD = (this.sculpture || this.hidden) ? 1 : 0;
     this.dissolve += (wantD - this.dissolve) * (1 - Math.pow(0.06, wdt));
     // The clearing opens and closes over about a second: slow enough to read
     // as the landscape moving aside rather than as a layer being switched off,

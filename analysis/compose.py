@@ -417,6 +417,18 @@ def compose(plot: bool) -> None:
             "color": sp.get("color", "#8fd8ff"),
             "iucn": sp.get("iucn", ""),
             "habitat": sp.get("habitat", ""),
+            # Editorial fields, used only by the species card in the viewer.
+            # `guild` groups the bird (duck, wader, passerine); `hk_note` is an
+            # optional hand-written line about what it has to do with Hong Kong,
+            # and where it is absent the card falls back to `habitat`.
+            "guild": sp.get("guild", ""),
+            "hk_note": sp.get("hk_note", ""),
+            # Optional, and empty for most species: dated IUCN category
+            # changes, so the card can show the status AS OF the year on
+            # screen instead of only today's. Absent means "no sourced dates
+            # were found" - the viewer then shows the current category alone
+            # rather than inventing a history.
+            "iucn_history": sp.get("iucn_history", []),
             "metric": metric,
             "metric_label": metrics.get(metric, {}).get("label", metric),
             "metric_unit": metrics.get(metric, {}).get("unit", "individuals"),

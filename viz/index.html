@@ -19,6 +19,32 @@
       overflow: hidden;
     }
     #scene { position: fixed; inset: 0; }
+
+    /* ---- THE ARCHIVE BACKDROP.
+       Mode two. The piece's argument is that a bay became a city, and the
+       city filmed itself doing it. Running that footage behind the bay puts
+       the claim and the evidence in one frame instead of asking the audience
+       to take the wireframe's word for it.
+
+       Composited with SCREEN rather than by making the canvas transparent.
+       The scene is drawn almost entirely in additive light on near-black, so
+       screen is the honest composite: the black falls away and only what the
+       piece actually draws lands on the footage. It also avoids carrying an
+       alpha channel through the bloom pass, which never survives one cleanly
+       - the halo ends up punching dark rings around every bright point. */
+    #backdrop {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.1s ease;
+      pointer-events: none;
+      /* Held well down. At full strength the footage is the piece and the
+         sculpture is a decoration on it, which is backwards. */
+      filter: grayscale(1) brightness(.40) contrast(1.12);
+    }
+    body.archive #backdrop { opacity: 1; }
+    body.archive #scene { mix-blend-mode: screen; }
     #hud {
       position: fixed; top: 0; left: 0;
       /* stop short of the radar panel so the controls never slide under it */
@@ -44,7 +70,8 @@
     }
     #camMode { max-width: 220px; }
     button:hover, select:hover { border-color: rgba(255,255,255,.45); }
-    #sculptBtn.active, #axesBtn.active, #scoreBtn.active, #clearBtn.active {
+    #sculptBtn.active, #axesBtn.active, #scoreBtn.active, #clearBtn.active,
+    #archiveBtn.active, #handsBtn.active {
       border-color: var(--accent); color: var(--accent);
     }
     /* the embed is blocked or the track is gone - say so rather than
@@ -151,6 +178,36 @@
     #compareCap b { color: var(--fg); font-weight: 500; }
     #compareCap .drop { color: #ff7a6e; }
 
+    /* ---- the hand camera.
+       Kept visible, small, in the corner. An interface driven by a camera
+       that does not show you the camera is a thing being done TO the
+       audience; showing the feed is how they can tell what it can see, and
+       it is also the only way anybody works out where to put their hand. */
+    #handBox {
+      position: fixed; left: 18px;
+      /* stacked above the footnote rather than on top of it; --meta-h goes to
+         0 with the panels hidden, so it drops to the corner in bare mode */
+      bottom: calc(20px + var(--meta-h, 58px));
+      z-index: 13; display: none;
+      background: rgba(8,10,14,.72);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding: 6px;
+      width: 180px;
+    }
+    body.hands #handBox { display: block; }
+    /* mirrored, so raising your right hand raises the one on the right */
+    #handCam {
+      display: block; width: 100%; border-radius: 6px;
+      transform: scaleX(-1); background: #000;
+      filter: grayscale(1) contrast(1.05) brightness(.9);
+    }
+    #handMsg {
+      font-size: 10px; letter-spacing: .05em; color: var(--dim);
+      padding: 5px 2px 1px; line-height: 1.5;
+    }
+    #handMsg b { color: var(--accent); font-weight: 500; }
+    #handMsg.live b { color: #6fe0c8; }
+
     #empty[hidden] { display: none; }
     #empty {
       position: fixed; inset: 0; display: grid; place-items: center;
@@ -160,6 +217,8 @@
   </style>
 </head>
 <body>
+  <!-- src is attached on first use: mode one should not pay to download it -->
+  <video id="backdrop" muted loop playsinline preload="auto"></video>
   <div id="scene"></div>
   <div id="hud">
     <span class="title">Silent Flyway</span>
@@ -169,6 +228,8 @@
     <button id="scoreBtn" class="active" title="the music bed under the piece">&#9834; score</button>
     <button id="panelBtn" class="active" title="hide the panels and see the whole image (P)">panels</button>
     <button id="clearBtn" class="active" title="hold a view open through to the sound sculpture (C)">clearing</button>
+    <button id="archiveBtn" title="run the archive footage behind the bay (V)">archive</button>
+    <button id="handsBtn" title="steer the bay with your hand - pinch to zoom, move to turn (H)">hands</button>
     <select id="camMode" title="camera style - lock onto one species">
       <option value="orbit">orbit camera</option>
     </select>
@@ -180,9 +241,16 @@
     put a recording in&nbsp; <code>calls/&lt;slug&gt;.wav</code> &nbsp;then run<br/>
     <code>python analysis/compose.py --plot</code>
   </div>
+  <div id="handBox">
+    <video id="handCam" muted playsinline></video>
+    <div id="handMsg"></div>
+  </div>
   <div id="year">1960</div>
   <div id="banner"></div>
   <div id="scoreboard"></div>
+  <!-- the panels-off view: one species at a time, with its photograph.
+       Styles live in speciesCard.js beside the code that fills it. -->
+  <div id="speciesCard"></div>
   <div id="meta"></div>
   <div id="clock"></div>
   <div id="compare">
@@ -216,7 +284,9 @@
       var radar = document.getElementById('radarBox');
       var root = document.documentElement;
       var graphBox = document.getElementById('graphBox');
+      var meta = document.getElementById('meta');
       function sync() {
+        root.style.setProperty('--meta-h', meta.offsetHeight + 'px');
         root.style.setProperty('--radar-w', radar.offsetWidth + 'px');
         root.style.setProperty('--hud-h', hud.offsetHeight + 8 + 'px');
         root.style.setProperty('--graph-top', 14 + graphBox.offsetHeight + 'px');
@@ -224,6 +294,7 @@
       new ResizeObserver(sync).observe(hud);
       new ResizeObserver(sync).observe(radar);
       new ResizeObserver(sync).observe(graphBox);
+      new ResizeObserver(sync).observe(meta);
       addEventListener('resize', sync);
       sync();
     })();
